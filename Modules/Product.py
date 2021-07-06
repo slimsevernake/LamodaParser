@@ -3,15 +3,15 @@ import enum
 
 class Product:
     def __init__(self):
+        self.brand = ""
         self.name = ""
-        self.description = ""
         self.article = ""
         self.type = ""
         self.image = ""
         self.status = None
-        self.available_sizes = list()
+        self.sizes = None
         self.link = ""
-        pass
+        self.price = 0
 
 
 class ProductStatus(enum.Enum):
