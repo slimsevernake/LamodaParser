@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
 import re
-import json
+import Parser.utils as utils
+from Modules.Product import Product
 
 SEARCH_URL = 'https://www.lamoda.ru/catalogsearch/result/?q={0}&page={1}'.format
 HOME_URL = 'https://www.lamoda.ru{0}'.format
@@ -9,7 +10,7 @@ HOME_URL = 'https://www.lamoda.ru{0}'.format
 
 def search(tag, pages=10):
     result = []
-    for page_num in range(1, pages+1):
+    for page_num in range(1, pages + 1):
         page = requests.get(SEARCH_URL(tag, page_num))
         if page.status_code == 200:
             soup = BeautifulSoup(page.text, "html.parser")
@@ -17,7 +18,7 @@ def search(tag, pages=10):
                 return list()
             product_card_list = soup.findAll("div", class_="products-list-item")
             for card in product_card_list:
-                parsed = parse_product(card.find("a")["href"])
+                parsed = parse_product(card.find("a")["href"], short_url=True)
                 if parsed is not None:
                     result.append(parsed)
         else:
@@ -26,8 +27,10 @@ def search(tag, pages=10):
         return result
 
 
-def parse_product(short_url):
-    page = requests.get(HOME_URL(short_url))
+def parse_product(url, short_url=False):
+    if short_url:
+        url = HOME_URL(url)
+    page = requests.get(url)
     if page.status_code == 200:
         soup = BeautifulSoup(page.text, "html.parser")
         p_grid = soup.find("div", class_="grid__product")
@@ -43,19 +46,29 @@ def parse_product(short_url):
         except TypeError:
             p_image = p_grid.find("img", class_="x-product-gallery__image x-product-gallery__image_single")['src']
 
-        p_article = short_url.replace("https://", "").split("/")[2]
+        p_article = url.replace("https://", "").split("/")[2]
 
         p_type = p_grid.find("x-product-title")["product-name"]
-        p_sizes = []
+
         sizes = p_grid.find("script", attrs={"data-module": "statistics"}).decode().replace("\n", "").replace(" ", "")
-        expressed = re.search('"sizes":\[[^]]*', sizes)[0].replace('"sizes":[', '')
-        ''' Доделать парс размеров'''
+        pack = re.search('"sizes":\[[^]]*', sizes)[0].replace('"sizes":[', '')
+        p_sizes = utils.parse_sizes(pack)
+
         ''' Доделать парс статуса'''
 
-        p_link = HOME_URL(short_url)
-
+        p_link = url
+        return Product(brand=p_brand,
+                       name=p_name,
+                       article=p_article,
+                       type=p_type,
+                       image_link=p_image,
+                       status=None,
+                       sizes=p_sizes,
+                       link=p_link,
+                       price=p_price)
     else:
         return None
 
 
-search("zig dynamica")
+for i in search("портупея"):
+    print(i)
