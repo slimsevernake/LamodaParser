@@ -56,7 +56,7 @@ def parse_product(url, short_url=False):
 
         ''' Доделать парс статуса'''
 
-        p_link = HOME_URL(short_url)
+        p_link = url
         return Product(brand=p_brand,
                        name=p_name,
                        article=p_article,
