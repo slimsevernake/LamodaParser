@@ -4,6 +4,8 @@ from Master.Master import Master
 master = Master()
 
 
-data = master.parse_product_by_tag("nike")
+data = master.parse_product_by_tag("портупея")
 
-print(data)
+el = data[0]
+
+master.is_product_changed(el)

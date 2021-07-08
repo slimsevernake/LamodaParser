@@ -1,5 +1,6 @@
 from typing import Optional
 
+from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
 from Modules.Product import Product
 
 from Master.Event import MasterResponse
@@ -10,10 +11,18 @@ import Parser.parser as parser
 
 class Master:
     product_db: list[Product]
+    product_change_event: ProductChangeEvent
 
-    @staticmethod
-    def parse_product_by_tag(tag: str) -> Optional[Product]:
+    def __init__(self):
+        self.product_db = []
+        self.product_change_event = ProductChangeEvent()
+        self.product_change_event.subscribe(OnProductChange())
+
+    def parse_product_by_tag(self, tag: str) -> Optional[Product]:
+
         data = parser.search(tag)
+        # TODO: add async
+
         return data
 
     def is_product_changed(self, product: Product) -> AbstractResponse:
@@ -25,9 +34,13 @@ class Master:
         """
         cached_product = self.get_product_by_sku(product.article)
 
+        if not cached_product:
+            return None
+
         return_event = AbstractResponse()
 
-        if cached_product.status != product.status:
+        if cached_product.status == product.status:
+            self.product_change_event.invoke(self, ProductChangeArgs("old_price", "new_price"))
             return_event.append_event(
                 MasterResponse("Status of product {} has changed from {} to {}"
                                .format(product.name, cached_product.status, product.status)))
