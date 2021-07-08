@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 
 from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
@@ -16,13 +17,20 @@ class Master:
         self.product_change_event.subscribe(OnProductChange())
 
     def parse_product_by_tag(self, tag: str) -> Optional[list[Product]]:
+        return asyncio.get_event_loop().run_until_complete(self.async_parse_product_by_tag(tag))
 
+    async def async_parse_product_by_tag(self, tag: str) -> Optional[list[Product]]:
         data = parser.search(tag)
-        # TODO: add async
+        loop = asyncio.get_event_loop()
+        tasks = []
         for el in data:
-            self.product_db.append(el)
-
+            tasks.append(loop.create_task(self.handle_product(el)))
+        await asyncio.wait(tasks)
         return data
+
+    async def handle_product(self, product: Product) -> None:
+        if not self.get_product_by_sku(product.article):
+            self.product_db.append(product)
 
     def is_product_changed(self, product: Product) -> None:
         cached_product = self.get_product_by_sku(product.article)

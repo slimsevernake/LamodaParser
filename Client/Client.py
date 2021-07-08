@@ -7,7 +7,6 @@ master = Master()
 
 
 data = master.parse_product_by_tag("портупея")
-
 el = copy.copy(data[0])
 
 el.price = 1
