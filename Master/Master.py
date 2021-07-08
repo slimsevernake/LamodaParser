@@ -3,9 +3,6 @@ from typing import Optional
 from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
 from Modules.Product import Product
 
-from Master.Event import MasterResponse
-from Master.Event import AbstractResponse
-
 import Parser.parser as parser
 
 
@@ -18,47 +15,29 @@ class Master:
         self.product_change_event = ProductChangeEvent()
         self.product_change_event.subscribe(OnProductChange())
 
-    def parse_product_by_tag(self, tag: str) -> Optional[Product]:
+    def parse_product_by_tag(self, tag: str) -> Optional[list[Product]]:
 
         data = parser.search(tag)
         # TODO: add async
+        for el in data:
+            self.product_db.append(el)
 
         return data
 
-    def is_product_changed(self, product: Product) -> AbstractResponse:
-        """
-        Check if product has been changed
-
-        :param product: product to check
-        :return:
-        """
+    def is_product_changed(self, product: Product) -> None:
         cached_product = self.get_product_by_sku(product.article)
 
         if not cached_product:
-            return None
+            return
 
-        return_event = AbstractResponse()
-
-        if cached_product.status == product.status:
-            self.product_change_event.invoke(self, ProductChangeArgs("old_price", "new_price"))
-            return_event.append_event(
-                MasterResponse("Status of product {} has changed from {} to {}"
-                               .format(product.name, cached_product.status, product.status)))
+        if cached_product.status != product.status:
+            self.product_change_event.invoke(ProductChangeArgs(product, "old_status", "new_status"))
 
         if cached_product.price != product.price:
-            return_event.append_event(
-                MasterResponse("Price of product {} has changed from {} to {}"
-                               .format(product.name, cached_product.price, product.price)))
+            self.product_change_event.invoke(ProductChangeArgs(product, "old_price", "new_price"))
 
         if cached_product.sizes != product.sizes:
-            return_event.append_event(
-                MasterResponse("Sizes of product {} have changed from {} to {}"
-                               .format(product.name, cached_product.sizes, product.sizes)))
-
-        if not return_event.raised:
-            return_event.append_event(MasterResponse("Product was not changed"))
-
-        return return_event
+            self.product_change_event.invoke(ProductChangeArgs(product, "old_sizes", "new_sizes"))
 
     # TODO: change to SQL request
     def get_product_by_tag(self, title: str) -> Optional[list[Product]]:

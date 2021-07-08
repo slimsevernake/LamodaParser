@@ -2,6 +2,7 @@ import enum
 
 
 class Product:
+
     def __init__(self, brand="", name="", article="", type="", image_link="", status=None, sizes=None, link="",
                  price=0):
         self.brand = brand
