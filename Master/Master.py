@@ -1,6 +1,6 @@
 import asyncio
 import json
-
+from discord import Embed
 import discord
 import requests
 from discord.ext import commands
