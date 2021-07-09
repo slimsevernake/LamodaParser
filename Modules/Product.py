@@ -1,8 +1,8 @@
 import enum
+from discord import Embed, Colour
 
 
 class Product:
-
     def __init__(self, brand="", name="", article="", type="", image_link="", status=None, sizes=None, link="",
                  price=0):
         self.brand = brand
@@ -24,6 +24,27 @@ class Product:
                f"Link: {self.link}\n" \
                f"Image: {self.image_link}\n" \
                f"Sizes: {' '.join([size.get('value', -1) for size in self.sizes])}\n"
+
+    def to_embed(self):
+        result = Embed(title=self.name, url=f"{self.link}", description=f"Описание: {self.brand} | {self.type}",
+                       color=Colour.magenta())
+        result.set_thumbnail(url="https:"+self.image_link)
+        result.add_field(name="Артикул: ", value=str(self.article), inline=False)
+        # result.add_field(name="Статус: ", value=str(self.status.name.replace("_", " ")), inline=False)
+        result.add_field(name="Цена: ", value=f"{self.price} RUB", inline=False)
+
+        available_sizes = list(filter(lambda x: x["available"], self.sizes))
+        if len(available_sizes) > 0:
+            result.add_field(name="Размеры: ", value=f"\0", inline=False)
+            for size in available_sizes:
+                result.add_field(inline=True,
+                                 name=f"Российский размер: {size['value']}",
+                                 value=f"Размер бренда: {size['brandSize']}")
+            '''if len(available_sizes) > 0:
+                result.add_field(name="Доступные размеры: ",
+                             value="\n".join([size["value"] for size in available_sizes]),
+                             inline=False)'''
+        return result
 
 
 class ProductStatus(enum.Enum):
