@@ -5,6 +5,7 @@ from Master.Master import Master
 
 master = Master()
 
+master.test("этот пидрила работает")
 
 data = master.parse_product_by_tag("портупея")
 el = copy.copy(data[0])

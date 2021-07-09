@@ -1,4 +1,9 @@
 import asyncio
+import json
+
+import discord
+import requests
+from discord.ext import commands
 from typing import Optional
 
 from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
@@ -6,6 +11,7 @@ from Modules.Product import Product
 
 import Parser.parser as parser
 
+webhook = "https://discord.com/api/webhooks/863035045953142815/bO2O8DDqbvL-MALvNPJqcfyvtyI__1HMrYRdG_MdkAw2rSwzztuX_G6nw7t3lMWIlijw"
 
 class Master:
     product_db: list[Product]
@@ -15,6 +21,10 @@ class Master:
         self.product_db = []
         self.product_change_event = ProductChangeEvent()
         self.product_change_event.subscribe(OnProductChange())
+
+    def test(self, data: str) -> None:
+
+        requests.post(webhook, data={"content": json.dumps(e.to_dict())})
 
     def parse_product_by_tag(self, tag: str) -> Optional[list[Product]]:
         return asyncio.get_event_loop().run_until_complete(self.async_parse_product_by_tag(tag))
