@@ -14,6 +14,7 @@ class ProductChangeArgs:
 
 class OnProductChange(Subscriber):
     def __call__(self, args: ProductChangeArgs):
+
         print("[{}] {} has changed: {}".format(args.product.article, args.product.name, args))
 
 

@@ -68,7 +68,3 @@ def parse_product(url, short_url=False):
                        price=p_price)
     else:
         return None
-
-
-for i in search("портупея"):
-    print(i)
