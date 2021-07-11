@@ -2,18 +2,18 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import Parser.utils as utils
-from Modules.Product import Product, ProductStatus
+from Modules.Product import Product
 
 SEARCH_URL = 'https://www.lamoda.ru/catalogsearch/result/?q={0}&page={1}'.format
 HOME_URL = 'https://www.lamoda.ru{0}'.format
 
 
-def search(tag, pages=10):
+def search(tag, pages=3):
     result = []
     for page_num in range(1, pages + 1):
         page = requests.get(SEARCH_URL(tag, page_num))
         if page.status_code == 200:
-            soup = BeautifulSoup(page.text, "html.parser")
+            soup = BeautifulSoup(page.text, "lxml")
             if "Поиск не дал результатов" in soup.text:
                 return list()
             product_card_list = soup.findAll("div", class_="products-list-item")
@@ -23,7 +23,6 @@ def search(tag, pages=10):
                     result.append(parsed)
         else:
             raise ConnectionError("Нет подключения к сайту!")
-            pass
         return result
 
 
@@ -33,11 +32,10 @@ def parse_product(url, short_url=False):
     page = requests.get(url)
     if page.status_code == 200:
         try:
-            soup = BeautifulSoup(page.text, "html.parser")
+            soup = BeautifulSoup(page.text, "lxml")
             p_grid = soup.find("div", class_="grid__product")
             p_brand = p_grid.find("h1", class_="product-title__brand-name")["title"]
             p_name = p_grid.find("h1", class_="product-title__brand-name").find("span").text
-
             try:
                 p_image = p_grid.find("img", class_="x-product-gallery__image x-product-gallery__image_first")['src']
             except TypeError:
@@ -60,7 +58,7 @@ def parse_product(url, short_url=False):
             else:
                 p_price = 0
 
-            ''' Доделать парс статуса'''
+            # TODO: Доделать парс статуса
             return Product(brand=p_brand,
                            name=p_name,
                            article=p_article,
@@ -70,7 +68,16 @@ def parse_product(url, short_url=False):
                            sizes=p_sizes,
                            link=p_link,
                            price=p_price)
-        except:
+        except Exception as ex:
+            print(ex)
             return None
     else:
+        return None
+
+
+def product_by_sku(sku):
+    try:
+        return parse_product(SEARCH_URL(sku, 1))
+    except Exception as ex:
+        print(ex)
         return None
