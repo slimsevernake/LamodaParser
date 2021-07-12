@@ -1,3 +1,4 @@
+from Bot.WebhookHandle import send_embed
 from Master.Event import Event, Subscriber
 from Modules.Product import Product
 
@@ -14,8 +15,11 @@ class ProductChangeArgs:
 
 class OnProductChange(Subscriber):
     def __call__(self, args: ProductChangeArgs):
-
-        print("[{}] {} has changed: {}".format(args.product.article, args.product.name, args))
+        data = args.product.to_embed()
+        data.add_field(name="Previous value: ", value=args.prev_data)
+        data.add_field(name="New value: ", value=args.new_data)
+        send_embed(data)
+        # print("[{}] {} has changed: {}".format(args.product.article, args.product.name, args))
 
 
 class ProductChangeEvent(Event):

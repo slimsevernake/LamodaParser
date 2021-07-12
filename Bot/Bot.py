@@ -1,32 +1,27 @@
-import asyncio
-import aiohttp
-from discord import Embed, Webhook, AsyncWebhookAdapter
+from discord.ext import tasks
 from discord.ext.commands import Bot, Context
+
+from settings import settings
 
 from Master.Master import Master
 
-TOKEN = "ODYzMDY0ODUxMzIzNjgyODM3.YOhdxw.8gojlvpfcXGV9NSZRa12uEdXEbo"
-WEBHOOK = "https://discord.com/api/webhooks/863035045953142815/bO2O8DDqbvL" \
-          "-MALvNPJqcfyvtyI__1HMrYRdG_MdkAw2rSwzztuX_G6nw7t3lMWIlijw "
+LOOP_TIME = 10  # seconds TODO: change to minutes or hours
 
-bot = Bot(command_prefix="!")
+bot = Bot(command_prefix=settings['bot_prefix'])
 master = Master()
 
 
 @bot.command()
-async def product(ctx: Context, product_tag: str):
-    data = master.parse_product_by_tag(product_tag)
-    await ctx.send(data)
+async def product(ctx: Context, *, product_tag: str):
+    data = await master.async_parse_product_by_tag(product_tag)
+    for product in data:
+        await ctx.send(embed=product.to_embed())
 
 
-async def async_send_embed(embed: Embed):
-    async with aiohttp.ClientSession() as session:
-        webhook = Webhook.from_url(WEBHOOK, adapter=AsyncWebhookAdapter(session))
-        await webhook.send(embed=embed)
+@tasks.loop(hours=LOOP_TIME)
+async def async_monitor_products():
+    # пройти по всем сохраненным элементам и проверить на изменения
+    master.monitor_products()
 
 
-def send_embed(embed: Embed):
-    asyncio.run(async_send_embed(embed))
-
-
-bot.run(TOKEN)
+bot.run(settings['token'])

@@ -1,7 +1,8 @@
 import asyncio
 from typing import Optional
 
-from ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
+from Bot import WebhookHandle
+from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
 from Modules.Product import Product
 
 import Parser.parser as parser
@@ -10,9 +11,11 @@ import Parser.parser as parser
 class Master:
     product_db: list[Product]
     product_change_event: ProductChangeEvent
+    tags: list[str]
 
     def __init__(self):
         self.product_db = []
+        self.tags = []
         self.product_change_event = ProductChangeEvent()
         self.product_change_event.subscribe(OnProductChange())
 
@@ -32,20 +35,30 @@ class Master:
         if not self.get_product_by_sku(product.article):
             self.product_db.append(product)
 
-    def is_product_changed(self, product: Product) -> None:
-        cached_product = self.get_product_by_sku(product.article)
+    def monitor_products(self):
+        for cached_product in self.product_db:
+            product = self.parse_product_by_sku(cached_product.article)
+            if not product:
+                # product has disappeared
+                self.product_change_event.invoke(ProductChangeArgs(cached_product, "product exists", "product was removed"))
+            self.check_product_changed(product, cached_product)
+        # for tag in self.tags:
+        #     data = self.parse_product_by_tag(tag)
+        #     for product in data:
+        #         cached_product = self.get_product_by_sku(product.article)
+        #         if not cached_product:
 
-        if not cached_product:
-            return
+        # for cached_product in self.product_db:
+        #    product = self.parse_product_by_sku(cached_product.article)
 
-        if cached_product.status != product.status:
-            self.product_change_event.invoke(ProductChangeArgs(product, "old_status", "new_status"))
-
+    def check_product_changed(self, product: Product, cached_product: Product) -> None:
         if cached_product.price != product.price:
-            self.product_change_event.invoke(ProductChangeArgs(product, "old_price", "new_price"))
+            WebhookHandle.send_embed(product.to_embed())
+            # self.product_change_event.invoke(ProductChangeArgs(product, "old_price", "new_price"))
 
         if cached_product.sizes != product.sizes:
-            self.product_change_event.invoke(ProductChangeArgs(product, "old_sizes", "new_sizes"))
+            pass
+            #self.product_change_event.invoke(ProductChangeArgs(product, "old_sizes", "new_sizes"))
 
     # TODO: change to SQL request
     def get_product_by_tag(self, title: str) -> Optional[list[Product]]:
@@ -64,3 +77,4 @@ class Master:
             if product.article == sku:
                 return product
         return None
+

@@ -1,11 +1,17 @@
 # Field to test Master
-import asyncio
 import copy
-
-import aiohttp
-import discord
-from discord import Webhook, AsyncWebhookAdapter, Embed
 
 from Master.Master import Master
 
+master = Master()
+
+
+products = master.parse_product_by_tag("портупея")
+
+
+tester = copy.copy(products[0])
+
+tester.price = 100
+
+master.check_product_changed(products[0], tester)
 
