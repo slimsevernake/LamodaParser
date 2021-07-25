@@ -33,6 +33,9 @@ class Product:
         # result.add_field(name="Статус: ", value=str(self.status.name.replace("_", " ")), inline=False)
         result.add_field(name="Цена: ", value=f"{self.price} RUB", inline=False)
 
+        if not self.sizes:
+            return result
+
         available_sizes = list(filter(lambda x: x["available"], self.sizes))
         if len(available_sizes) > 0:
             result.add_field(name="Размеры: ", value=f"\0", inline=False)
@@ -40,10 +43,10 @@ class Product:
                 result.add_field(inline=True,
                                  name=f"Российский размер: {size['value']}",
                                  value=f"Размер бренда: {size['brandSize']}")
-            '''if len(available_sizes) > 0:
-                result.add_field(name="Доступные размеры: ",
-                             value="\n".join([size["value"] for size in available_sizes]),
-                             inline=False)'''
+            # if len(available_sizes) > 0:
+            #    result.add_field(name="Доступные размеры: ",
+            #                 value="\n".join([size["value"] for size in available_sizes]),
+            #                 inline=False)
         return result
 
 

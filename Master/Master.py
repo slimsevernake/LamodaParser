@@ -1,7 +1,6 @@
-import asyncio
 from typing import Optional
 
-from Bot import WebhookHandle
+from WebhookHandle import *
 from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
 from Modules.Product import Product
 
@@ -22,6 +21,9 @@ class Master:
     def parse_product_by_tag(self, tag: str) -> Optional[list[Product]]:
         return asyncio.run(self.async_parse_product_by_tag(tag))
 
+    def parse_product_by_sku(self, sku: str) -> Optional[Product]:
+        return parser.product_by_sku(sku)
+
     async def async_parse_product_by_tag(self, tag: str) -> Optional[list[Product]]:
         data = parser.search(tag)
         loop = asyncio.get_event_loop()
@@ -40,7 +42,7 @@ class Master:
             product = self.parse_product_by_sku(cached_product.article)
             if not product:
                 # product has disappeared
-                self.product_change_event.invoke(ProductChangeArgs(cached_product, "product exists", "product was removed"))
+                self.product_change_event.invoke(ProductChangeArgs(cached_product, "status", "product exists", "product was removed"))
             self.check_product_changed(product, cached_product)
         # for tag in self.tags:
         #     data = self.parse_product_by_tag(tag)
@@ -53,12 +55,10 @@ class Master:
 
     def check_product_changed(self, product: Product, cached_product: Product) -> None:
         if cached_product.price != product.price:
-            WebhookHandle.send_embed(product.to_embed())
-            # self.product_change_event.invoke(ProductChangeArgs(product, "old_price", "new_price"))
+            self.product_change_event.invoke(ProductChangeArgs(product, "price", cached_product.price, product.price))
 
         if cached_product.sizes != product.sizes:
-            pass
-            #self.product_change_event.invoke(ProductChangeArgs(product, "old_sizes", "new_sizes"))
+            self.product_change_event.invoke(ProductChangeArgs(product, "sizes", cached_product.sizes, product.sizes))
 
     # TODO: change to SQL request
     def get_product_by_tag(self, title: str) -> Optional[list[Product]]:
