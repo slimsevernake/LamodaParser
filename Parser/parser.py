@@ -77,7 +77,10 @@ def parse_product(url, short_url=False):
 
 def product_by_sku(sku):
     try:
-        return parse_product(SEARCH_URL(sku, 1))
+        product = parse_product(SEARCH_URL(sku, 1))
+        product.article = sku
+        return product
     except Exception as ex:
         print(ex)
         return None
+
