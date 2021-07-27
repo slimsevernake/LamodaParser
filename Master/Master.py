@@ -18,14 +18,16 @@ class Master:
         self.product_change_event = ProductChangeEvent()
         self.product_change_event.subscribe(OnProductChange())
 
-    def parse_product_by_tag(self, tag: str) -> Optional[list[Product]]:
-        return asyncio.run(self.async_parse_product_by_tag(tag))
-
     def parse_product_by_sku(self, sku: str) -> Optional[Product]:
         return parser.product_by_sku(sku)
 
     async def async_parse_product_by_tag(self, tag: str) -> Optional[list[Product]]:
+        # DEBUG
+        print(f"tag to parse: {tag}")
+
         data = parser.search(tag)
+        if len(data) == 0:
+            return None
         loop = asyncio.get_event_loop()
         tasks = []
         for el in data:
@@ -37,28 +39,24 @@ class Master:
         if not self.get_product_by_sku(product.article):
             self.product_db.append(product)
 
-    def monitor_products(self):
+    async def monitor_products(self):
         for cached_product in self.product_db:
             product = self.parse_product_by_sku(cached_product.article)
-            if not product:
-                # product has disappeared
-                self.product_change_event.invoke(ProductChangeArgs(cached_product, "status", "product exists", "product was removed"))
-            self.check_product_changed(product, cached_product)
-        # for tag in self.tags:
-        #     data = self.parse_product_by_tag(tag)
-        #     for product in data:
-        #         cached_product = self.get_product_by_sku(product.article)
-        #         if not cached_product:
+            await self.check_product_changed(product, cached_product)
 
-        # for cached_product in self.product_db:
-        #    product = self.parse_product_by_sku(cached_product.article)
+    async def check_product_changed(self, product: Product, cached_product: Product) -> None:
+        if not product:
+            # product has disappeared
+            await self.product_change_event.invoke(
+                ProductChangeArgs(cached_product, "status", "product exists", "product was removed"))
+            return
 
-    def check_product_changed(self, product: Product, cached_product: Product) -> None:
         if cached_product.price != product.price:
-            self.product_change_event.invoke(ProductChangeArgs(product, "price", cached_product.price, product.price))
+            await self.product_change_event.invoke(ProductChangeArgs(product, "price", cached_product.price, product.price))
 
         if cached_product.sizes != product.sizes:
-            self.product_change_event.invoke(ProductChangeArgs(product, "sizes", cached_product.sizes, product.sizes))
+            pass
+            # self.product_change_event.invoke(ProductChangeArgs(product, "sizes", cached_product.sizes, product.sizes))
 
     # TODO: change to SQL request
     def get_product_by_tag(self, title: str) -> Optional[list[Product]]:
@@ -77,4 +75,3 @@ class Master:
             if product.article == sku:
                 return product
         return None
-

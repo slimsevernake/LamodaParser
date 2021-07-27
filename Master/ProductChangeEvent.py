@@ -1,7 +1,7 @@
 from discord import Colour, Embed
 
 from Master.utils import get_field_index_by_name
-from WebhookHandle import send_embed
+from WebhookHandle import send_embed, async_send_embed
 from Master.Event import Event, Subscriber
 from Modules.Product import Product
 
@@ -18,23 +18,33 @@ class ProductChangeArgs:
 
 
 class OnProductChange(Subscriber):
-    def __call__(self, args: ProductChangeArgs):
+    async def __call__(self, args: ProductChangeArgs):
         data = args.product.to_embed()
         data.description = "Изменение в товаре\n" + data.description
         data.colour = Colour.blue()
 
         if args.field == "price":
-            self.update(data, args, "Цена: ")
+            self.update_embed_field(data, args, "Цена: ")
+        elif args.field == "status":
+            data.title = "~~{}~~".format(data.title)
+            data.description += "Товар отсутствует в магазине\n"
+        # TODO: update
         elif args.field == "sizes":
             for size in args.prev_data:
                 if size not in args.new_data:
                     field_index = get_field_index_by_name(data, size.name)
                     if field_index == -1:
                         continue
-                    data.insert_field_at(field_index, name="~~{}~~".format(size.name), value="~~{}~~".format(size.value))
-        send_embed(data)
+                    data.insert_field_at(field_index, name="~~{}~~".format(size.name),
+                                         value="~~{}~~".format(size.value))
 
-    def update(self, embed: Embed, args, name: str):
+        # DEBUG
+        print("========| UPDATE |========")
+        print(args.product)
+
+        await async_send_embed(data)
+
+    def update_embed_field(self, embed: Embed, args, name: str):
         field_index = get_field_index_by_name(embed, name)
         if field_index == -1:
             return None
@@ -44,6 +54,6 @@ class OnProductChange(Subscriber):
 
 
 class ProductChangeEvent(Event):
-    def invoke(self, args: ProductChangeArgs):
+    async def invoke(self, args: ProductChangeArgs):
         for sub in self.subscribers:
-            sub(args)
+            await sub(args)
