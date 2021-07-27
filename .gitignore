@@ -1,2 +1,8 @@
 
 .idea/
+venv/
+Master/__pycache__/
+
+Modules/__pycache__/
+
+Parser/__pycache__/
