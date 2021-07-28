@@ -12,15 +12,15 @@ class Subscriber:
 
 
 class Event:
-    subscribers: list[Subscriber]
+    subscribers: 'list[Subscriber]'
 
     def __init__(self):
         self.subscribers = []
 
-    def subscribe(self, sub: Subscriber):
+    def subscribe(self, sub: 'Subscriber'):
         self.subscribers.append(sub)
 
-    def unsubscribe(self, sub: Subscriber):
+    def unsubscribe(self, sub: 'Subscriber'):
         self.subscribers.remove(sub)
 
     def invoke(self, *args, **arguments):
