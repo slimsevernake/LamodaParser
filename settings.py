@@ -7,5 +7,5 @@ bot_settings = {
 }
 
 products_to_monitor = [
-    "SKU: rtlaam629301"
+    "SKU: rtlaan501001"
 ]
