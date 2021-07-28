@@ -1,13 +1,13 @@
 from discord import Colour, Embed
 
 from Master.utils import get_field_index_by_name
-from WebhookHandle import send_embed, async_send_embed
+from WebhookHandle import async_send_embed
 from Master.Event import Event, Subscriber
 from Modules.Product import Product
 
 
 class ProductChangeArgs:
-    def __init__(self, product: Product, field: str, prev_data: any, new_data: any):
+    def __init__(self, product: 'Product', field: str, prev_data: 'any', new_data: 'any'):
         self.field = field
         self.product = product
         self.prev_data = prev_data
@@ -18,7 +18,7 @@ class ProductChangeArgs:
 
 
 class OnProductChange(Subscriber):
-    async def __call__(self, args: ProductChangeArgs):
+    async def __call__(self, args: 'ProductChangeArgs'):
         data = args.product.to_embed()
         data.description = "Изменение в товаре\n" + data.description
         data.colour = Colour.blue()
@@ -44,7 +44,8 @@ class OnProductChange(Subscriber):
 
         await async_send_embed(data)
 
-    def update_embed_field(self, embed: Embed, args, name: str):
+    @staticmethod
+    def update_embed_field(self, embed: 'Embed', args, name: 'str'):
         field_index = get_field_index_by_name(embed, name)
         if field_index == -1:
             return None
@@ -54,6 +55,6 @@ class OnProductChange(Subscriber):
 
 
 class ProductChangeEvent(Event):
-    async def invoke(self, args: ProductChangeArgs):
+    async def invoke(self, args: 'ProductChangeArgs'):
         for sub in self.subscribers:
             await sub(args)

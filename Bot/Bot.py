@@ -27,11 +27,26 @@ async def check(ctx: Context):
     #     print(el)
 
 
+def is_sku(tag: str):
+    splitted = tag.split()
+    if len(splitted) == 2:
+        if splitted[0] == "SKU:":
+            return True, splitted[1]
+        else:
+            return False, None
+    else:
+        return False, None
+
+
 @bot.event
 async def on_ready():
     print("==================| Bot initiated |====================")
     for product_tag in settings.products_to_monitor:
-        await master.async_parse_product_by_tag(product_tag)
+        condition, sku = is_sku(product_tag)
+        if condition:
+            await master.async_process_product_by_sku(sku)
+        else:
+            await master.async_parse_product_by_tag(product_tag)
 
     print("==================| Bot started parsing products |====================")
     for product in master.product_db:
@@ -65,10 +80,10 @@ async def async_update_products_test():
 
 # async_monitor_products.before_loop(bot.wait_until_ready)
 # async_monitor_update.before_loop(bot.wait_until_ready)
-async_update_products_test.before_loop(bot.wait_until_ready)
+# async_update_products_test.before_loop(bot.wait_until_ready)
 
 async_monitor_products.start()
 # async_monitor_update.start()
-async_update_products_test.start()
+# async_update_products_test.start()
 
 bot.run(settings.bot_settings['token'])

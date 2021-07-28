@@ -7,6 +7,5 @@ bot_settings = {
 }
 
 products_to_monitor = [
-    "Jordan 6",
-    "портупея",
+    "SKU: rtlaam629301"
 ]
