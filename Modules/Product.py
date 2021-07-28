@@ -10,7 +10,7 @@ class Product:
         self.article = article
         self.type = type
         self.image_link = image_link
-        self.status = ProductStatus.IN_STOCK if status is None else ProductStatus.OUT_OF_STOCK
+        self.status = ProductStatus.IN_STOCK if status is None else status
         self.sizes = sizes
         self.link = link
         self.price = price
