@@ -1,6 +1,6 @@
 from typing import Optional
 
-from WebhookHandle import *
+from Master.WebhookHandle import *
 from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
 from Modules.Product import Product
 
