@@ -48,7 +48,8 @@ def parse_product(url, short_url=False):
 
             p_type = p_grid.find("x-product-title")["product-name"]
 
-            sizes = p_grid.find("script", attrs={"data-module": "statistics"}).decode().replace("\n", "").replace(" ", "")
+            sizes = p_grid.find("script", attrs={"data-module": "statistics"}).decode().replace("\n", "").replace(" ",
+                                                                                                                  "")
             pack = re.search('"sizes":\[[^]]*', sizes)[0].replace('"sizes":[', '')
             p_sizes = utils.parse_sizes(pack)
 
@@ -60,19 +61,17 @@ def parse_product(url, short_url=False):
             else:
                 p_price = 0
                 p_status = ProductStatus.OUT_OF_STOCK
-                
 
-            
             product = Product(brand=p_brand,
-                           name=p_name,
-                           article=p_article,
-                           type=p_type,
-                           image_link=p_image,
-                           status=p_status,
-                           sizes=p_sizes,
-                           link=p_link,
-                           price=p_price)
-            print(f"{datetime.datetime.now()} | {product}".replace("\n",  "    "))
+                              name=p_name,
+                              article=p_article,
+                              type=p_type,
+                              image_link=p_image,
+                              status=p_status,
+                              sizes=p_sizes,
+                              link=p_link,
+                              price=p_price)
+            print(f"{datetime.datetime.now()} | {product}".replace("\n", "    "))
             return product
         except Exception as ex:
             print(ex)
@@ -89,4 +88,3 @@ def product_by_sku(sku):
     except Exception as ex:
         print(ex)
         return None
-

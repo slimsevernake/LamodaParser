@@ -25,18 +25,6 @@ class OnProductChange(Subscriber):
 
         if args.field == "price":
             self.update_embed_field(data, args, "Цена: ")
-        elif args.field == "status":
-            data.title = "~~{}~~".format(data.title)
-            data.description += "Товар отсутствует в магазине\n"
-        # TODO: update
-        elif args.field == "sizes":
-            for size in args.prev_data:
-                if size not in args.new_data:
-                    field_index = get_field_index_by_name(data, size.name)
-                    if field_index == -1:
-                        continue
-                    data.insert_field_at(field_index, name="~~{}~~".format(size.name),
-                                         value="~~{}~~".format(size.value))
 
         # DEBUG
         print("========| UPDATE |========")
