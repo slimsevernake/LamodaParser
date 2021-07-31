@@ -2,7 +2,8 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import Parser.utils as utils
-from Modules.Product import Product
+from Modules.Product import Product, ProductStatus
+import datetime
 
 SEARCH_URL = 'https://www.lamoda.ru/catalogsearch/result/?q={0}&page={1}'.format
 HOME_URL = 'https://www.lamoda.ru{0}'.format
@@ -55,19 +56,24 @@ def parse_product(url, short_url=False):
             if is_available is not None:
                 p_price_text = p_grid.find_all("span", class_="product-prices__price")[-1].text
                 p_price = float(''.join(filter(str.isalnum, p_price_text)))
+                p_status = ProductStatus.IN_STOCK
             else:
                 p_price = 0
+                p_status = ProductStatus.OUT_OF_STOCK
+                
 
-            # TODO: Доделать парс статуса
-            return Product(brand=p_brand,
+            
+            product = Product(brand=p_brand,
                            name=p_name,
                            article=p_article,
                            type=p_type,
                            image_link=p_image,
-                           status=None,
+                           status=p_status,
                            sizes=p_sizes,
                            link=p_link,
                            price=p_price)
+            print(f"{datetime.datetime.now()} | {product}".replace("\n",  "    "))
+            return product
         except Exception as ex:
             print(ex)
             return None

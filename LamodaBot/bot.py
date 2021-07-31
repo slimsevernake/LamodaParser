@@ -1,6 +1,7 @@
 import LamodaBot.bot_settings as settings
 from discord.ext import tasks
 from discord.ext.commands import Bot, Context
+import datetime
 
 from Master.Master import Master
 from Master.WebhookHandle import async_send_embed
@@ -47,22 +48,22 @@ async def on_ready():
         else:
             await master.async_parse_product_by_tag(product_tag)
 
-    print("==================| Bot started parsing products |====================")
+    print(f"{datetime.datetime.now()}| Bot started parsing products |")
     for product in master.product_db:
         await async_send_embed(product.to_embed())
         # DEBUG
-        print(product)
-    print("==================| Bot parsed all products |====================")
+        print(f"{datetime.datetime.now()} |  {product}")
+    print(f"{datetime.datetime.now()}| Bot parsed all products |")
 
 
 @tasks.loop(seconds=settings.bot_settings['monitor_loop_time'])
 async def async_monitor_products():
     # пройти по всем сохраненным элементам и проверить на изменения
-    print("==================| Bot started monitoring cycle |====================")
+    print(f"{datetime.datetime.now()}| Bot started monitoring cycle |")
     await master.monitor_products()
 
 
-@tasks.loop(minutes=settings.bot_settings['update_tags_loop_time'])
+@tasks.loop(seconds=settings.bot_settings['update_tags_loop_time'])
 async def async_monitor_update():
     for product_tag in settings.products_to_monitor:
         await master.async_parse_product_by_tag(product_tag)
@@ -70,7 +71,10 @@ async def async_monitor_update():
 # async_monitor_products.before_loop(bot.wait_until_ready)
 # async_monitor_update.before_loop(bot.wait_until_ready)
 
-async_monitor_products.start()
-async_monitor_update.start()
-
-bot.run(settings.bot_settings['token'])
+try:
+    async_monitor_products.start()
+    async_monitor_update.start()
+    
+    bot.run(settings.bot_settings['token'])
+except Exception as ex:
+    print(ex)
