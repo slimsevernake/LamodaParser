@@ -25,14 +25,10 @@ class OnProductChange(Subscriber):
         if args.field == "price":
             self.update_embed_field(data, args, "Цена: ")
 
-        # DEBUG
-        print("========| UPDATE |========")
-        print(args.product)
-
         await async_send_embed(data)
 
     @staticmethod
-    def update_embed_field(self, embed: 'Embed', args, name: 'str'):
+    def update_embed_field(embed: 'Embed', args, name: 'str'):
         field_index = get_field_index_by_name(embed, name)
         if field_index == -1:
             return None

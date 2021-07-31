@@ -74,7 +74,7 @@ def parse_product(url, logger: 'Logger', short_url=False):
                               sizes=p_sizes,
                               link=p_link,
                               price=p_price)
-            logger.debug(f"{datetime.datetime.now()} | {product}".replace("\n", "    "))
+            logger.debug(f"{product}".replace("\n", "    "))
             # print(f"{datetime.datetime.now()} | {product}".replace("\n", "    "))
             return product
         except Exception as ex:

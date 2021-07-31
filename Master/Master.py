@@ -26,8 +26,11 @@ class Master:
         else:
             self.logger = app_logger.get_logger("master")
 
+        self.logger.info("master initiated")
+
     async def async_process_product_by_sku(self, sku: 'str') -> 'Optional[Product]':
         self.logger.debug(f"SKU to parse: {sku}")
+
         data = parser.product_by_sku(sku, self.logger)
         # Here code prays to Allah. مجد الله!
         if data:
