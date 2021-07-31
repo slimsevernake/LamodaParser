@@ -1,3 +1,5 @@
+from logging import Logger
+
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -10,7 +12,7 @@ HOME_URL = 'https://www.lamoda.ru{0}'.format
 PRODUCT_URL = 'https://www.lamoda.ru/p/{0}/'.format
 
 
-def search(tag, pages=3):
+def search(tag, logger: 'Logger', pages=3):
     result = []
     for page_num in range(1, pages + 1):
         page = requests.get(SEARCH_URL(tag, page_num))
@@ -20,7 +22,7 @@ def search(tag, pages=3):
                 return list()
             product_card_list = soup.findAll("div", class_="products-list-item")
             for card in product_card_list:
-                parsed = parse_product(card.find("a")["href"], short_url=True)
+                parsed = parse_product(card.find("a")["href"], short_url=True, logger=logger)
                 if parsed is not None:
                     result.append(parsed)
         else:
@@ -28,7 +30,7 @@ def search(tag, pages=3):
         return result
 
 
-def parse_product(url, short_url=False):
+def parse_product(url, logger: 'Logger', short_url=False):
     if short_url:
         url = HOME_URL(url)
     page = requests.get(url)
@@ -72,20 +74,23 @@ def parse_product(url, short_url=False):
                               sizes=p_sizes,
                               link=p_link,
                               price=p_price)
-            print(f"{datetime.datetime.now()} | {product}".replace("\n", "    "))
+            logger.debug(f"{datetime.datetime.now()} | {product}".replace("\n", "    "))
+            # print(f"{datetime.datetime.now()} | {product}".replace("\n", "    "))
             return product
         except Exception as ex:
-            print(ex)
+            logger.exception(ex)
+            # print(ex)
             return None
     else:
         return None
 
 
-def product_by_sku(sku):
+def product_by_sku(sku, logger: 'Logger'):
     try:
-        product = parse_product(PRODUCT_URL(sku))
+        product = parse_product(PRODUCT_URL(sku), logger=logger)
         product.article = sku
         return product
     except Exception as ex:
-        print(ex)
+        logger.exception(ex)
+        # print(ex)
         return None

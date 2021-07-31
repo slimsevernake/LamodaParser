@@ -1,3 +1,4 @@
+import asyncio
 from logging import Logger
 from typing import Optional
 
@@ -27,7 +28,7 @@ class Master:
 
     async def async_process_product_by_sku(self, sku: 'str') -> 'Optional[Product]':
         self.logger.debug(f"SKU to parse: {sku}")
-        data = parser.product_by_sku(sku)
+        data = parser.product_by_sku(sku, self.logger)
         # Here code prays to Allah. مجد الله!
         if data:
             await self.handle_product(data)
@@ -38,7 +39,7 @@ class Master:
 
         self.logger.debug(f"Tag to parse: {tag}")
 
-        data = parser.search(tag)
+        data = parser.search(tag, self.logger)
         if len(data) == 0:
             return None
         loop = asyncio.get_event_loop()
@@ -54,7 +55,7 @@ class Master:
 
     async def monitor_products(self):
         for cached_product in self.product_db:
-            product = parser.product_by_sku(cached_product.article)
+            product = parser.product_by_sku(cached_product.article, self.logger)
             await self.check_product_changed(product, cached_product)
 
     async def check_product_changed(self, product: 'Product', cached_product: 'Product') -> None:
