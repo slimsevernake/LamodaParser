@@ -35,15 +35,19 @@ def is_sku(tag: str):
         return False, None
 
 
+async def process_product(product_tag):
+    condition, sku = is_sku(product_tag)
+    if condition:
+        await master.async_process_product_by_sku(sku)
+    else:
+        await master.async_parse_product_by_tag(product_tag)
+
+
 @bot.event
 async def on_ready():
     logger.info("bot initiated")
     for product_tag in settings.products_to_monitor:
-        condition, sku = is_sku(product_tag)
-        if condition:
-            await master.async_process_product_by_sku(sku)
-        else:
-            await master.async_parse_product_by_tag(product_tag)
+        await process_product(product_tag)
 
     logger.info("bot started parsing products")
 
@@ -65,7 +69,7 @@ async def async_monitor_products():
 @tasks.loop(seconds=settings.bot_settings['update_tags_loop_time'])
 async def async_monitor_update():
     for product_tag in settings.products_to_monitor:
-        await master.async_parse_product_by_tag(product_tag)
+        await process_product(product_tag)
 
 # async_monitor_products.before_loop(bot.wait_until_ready)
 # async_monitor_update.before_loop(bot.wait_until_ready)

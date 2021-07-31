@@ -2,6 +2,11 @@ import enum
 from discord import Embed, Colour
 
 
+class ProductStatus(enum.Enum):
+    OUT_OF_STOCK = 0,
+    IN_STOCK = 1
+
+
 class Product:
     def __init__(self, brand="", name="", article="", type="", image_link="", status=None, sizes=None, link="",
                  price=0):
@@ -26,27 +31,23 @@ class Product:
                f"Sizes: {' '.join([size.get('value', -1) for size in self.sizes])}\n"
 
     def to_embed(self):
+        print("EMBEDDED!")
         result = Embed(title=self.name, url=f"{self.link}", description=f"Описание: {self.brand} | {self.type}",
                        color=Colour.magenta())
         result.set_thumbnail(url="https:"+self.image_link)
         result.add_field(name="Артикул: ", value=str(self.article), inline=False)
         result.add_field(name="Статус: ", value=self.status.name.replace("_", " "), inline=False)
-        # result.add_field(name="Статус: ", value=str(self.status.name.replace("_", " ")), inline=False)
-        result.add_field(name="Цена: ", value=f"{self.price} RUB", inline=False)
+        if self.status == ProductStatus.OUT_OF_STOCK:
+            result.add_field(name="Цена: ", value=f"{self.price} RUB", inline=False)
 
         if not self.sizes:
             return result
-
-        available_sizes = list(filter(lambda x: x["available"], self.sizes))
-        if len(available_sizes) > 0:
-            result.add_field(name="Размеры: ", value=f"\0", inline=False)
-            for size in available_sizes:
-                result.add_field(inline=True,
-                                 name=f"Российский размер: {size['value']}",
-                                 value=f"Размер бренда: {size['brandSize']}")
+        else:
+            available_sizes = list(filter(lambda x: x["available"], self.sizes))
+            if len(available_sizes) > 0:
+                result.add_field(name="Размеры: ", value=f"\0", inline=False)
+                for size in available_sizes:
+                    result.add_field(inline=True,
+                                     name=f"Российский размер: {size['value']}",
+                                     value=f"Размер бренда: {size['brandSize']}")
         return result
-
-
-class ProductStatus(enum.Enum):
-    OUT_OF_STOCK = 0,
-    IN_STOCK = 1

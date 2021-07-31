@@ -7,6 +7,7 @@ import datetime
 
 SEARCH_URL = 'https://www.lamoda.ru/catalogsearch/result/?q={0}&page={1}'.format
 HOME_URL = 'https://www.lamoda.ru{0}'.format
+PRODUCT_URL = 'https://www.lamoda.ru/p/{0}/'.format
 
 
 def search(tag, pages=3):
@@ -82,7 +83,7 @@ def parse_product(url, short_url=False):
 
 def product_by_sku(sku):
     try:
-        product = parse_product(SEARCH_URL(sku, 1))
+        product = parse_product(PRODUCT_URL(sku))
         product.article = sku
         return product
     except Exception as ex:
