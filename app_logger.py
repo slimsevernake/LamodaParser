@@ -17,21 +17,21 @@ def get_new_log_name(name: 'str'):
 
 def get_file_handler(name: 'str'):
     file_handler = logging.FileHandler(f"{_log_folder}{get_new_log_name(name)}")
-    file_handler.setLevel(logging.INFO)
+    file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter(_log_format))
     return file_handler
 
 
 def get_stream_handler():
     stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.INFO)
+    stream_handler.setLevel(logging.DEBUG)
     stream_handler.setFormatter(logging.Formatter(_log_format))
     return stream_handler
 
 
 def get_logger(name: 'str'):
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.addHandler(get_file_handler(name))
     logger.addHandler(get_stream_handler())
     return logger
