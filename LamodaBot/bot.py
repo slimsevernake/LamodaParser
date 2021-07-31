@@ -2,10 +2,12 @@ import LamodaBot.bot_settings as settings
 from discord.ext import tasks
 from discord.ext.commands import Bot, Context
 
+import app_logger
 from Master.Master import Master
 from Master.WebhookHandle import async_send_embed
 
 
+logger = app_logger.get_logger(__name__)
 bot = Bot(command_prefix=settings.bot_settings['bot_prefix'])
 master = Master()
 
@@ -39,7 +41,7 @@ def is_sku(tag: str):
 
 @bot.event
 async def on_ready():
-    print("==================| Bot initiated |====================")
+    logger.info("bot initiated")
     for product_tag in settings.products_to_monitor:
         condition, sku = is_sku(product_tag)
         if condition:
@@ -47,18 +49,20 @@ async def on_ready():
         else:
             await master.async_parse_product_by_tag(product_tag)
 
-    print("==================| Bot started parsing products |====================")
+    logger.info("bot started parsing products")
+
     for product in master.product_db:
         await async_send_embed(product.to_embed())
         # DEBUG
-        print(product)
-    print("==================| Bot parsed all products |====================")
+        logger.debug(product)
+
+    logger.info("bot parsed all products")
 
 
 @tasks.loop(seconds=settings.bot_settings['monitor_loop_time'])
 async def async_monitor_products():
     # пройти по всем сохраненным элементам и проверить на изменения
-    print("==================| Bot started monitoring cycle |====================")
+    logger.info("bot started monitoring cycle")
     await master.monitor_products()
 
 
