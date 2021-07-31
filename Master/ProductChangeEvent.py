@@ -1,5 +1,4 @@
 from discord import Colour, Embed
-
 from Master.utils import get_field_index_by_name
 from Master.WebhookHandle import async_send_embed
 from Master.Event import Event, Subscriber

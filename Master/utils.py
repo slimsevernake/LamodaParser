@@ -1,7 +1,4 @@
-from typing import Optional
-
 from discord import Embed
-from discord.embeds import EmbedProxy
 
 
 def get_field_index_by_name(embed: Embed, name: str) -> int:
