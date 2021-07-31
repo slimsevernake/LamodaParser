@@ -1,14 +1,13 @@
 import LamodaBot.bot_settings as settings
 from discord.ext import tasks
 from discord.ext.commands import Bot, Context
-import datetime
 
 import app_logger
 from Master.Master import Master
 from Master.WebhookHandle import async_send_embed
 
 
-logger = app_logger.get_logger(__name__)
+logger = app_logger.get_logger("common")
 bot = Bot(command_prefix=settings.bot_settings['bot_prefix'])
 master = Master()
 

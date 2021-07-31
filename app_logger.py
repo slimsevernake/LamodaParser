@@ -2,21 +2,21 @@ import datetime
 import logging
 import os
 
-_log_format = f"%(asctime)s - [%(levelname)s] - %(message)s"
+_log_format = f"%(asctime)s - %(name)s - [%(levelname)s] - %(message)s"
 _log_folder = "logs/"
 
-_log_file_format = "{0:03d}--common.log"
+_log_file_format = "{0:03d}--{1}.log"
 
 
-def get_new_log_name():
-    path, dirs, files = next(os.walk(_log_folder))
+def get_new_log_name(name: 'str'):
+    _, _, files = next(os.walk(_log_folder))
     file_count = len(files)
-    new_name = _log_file_format.format(file_count+1)
+    new_name = _log_file_format.format(file_count+1, name)
     return new_name
 
 
-def get_file_handler():
-    file_handler = logging.FileHandler(f"{_log_folder}{get_new_log_name()}")
+def get_file_handler(name: 'str'):
+    file_handler = logging.FileHandler(f"{_log_folder}{get_new_log_name(name)}")
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(logging.Formatter(_log_format))
     return file_handler
@@ -29,9 +29,9 @@ def get_stream_handler():
     return stream_handler
 
 
-def get_logger(name):
+def get_logger(name: 'str'):
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
-    logger.addHandler(get_file_handler())
+    logger.addHandler(get_file_handler(name))
     logger.addHandler(get_stream_handler())
     return logger

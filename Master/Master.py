@@ -1,5 +1,7 @@
+from logging import Logger
 from typing import Optional
-import datetime
+
+import app_logger
 from Master.WebhookHandle import *
 from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
 from Modules.Product import Product
@@ -12,14 +14,19 @@ class Master:
     product_change_event: 'ProductChangeEvent'
     tags: 'list[str]'
 
-    def __init__(self):
+    def __init__(self, logger: 'Logger' = None):
         self.product_db = []
         self.tags = []
         self.product_change_event = ProductChangeEvent()
         self.product_change_event.subscribe(OnProductChange())
 
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = app_logger.get_logger("master")
+
     async def async_process_product_by_sku(self, sku: 'str') -> 'Optional[Product]':
-        print(f"{datetime.datetime.now()} | SKU to parse: {sku}")
+        self.logger.debug(f"SKU to parse: {sku}")
         data = parser.product_by_sku(sku)
         # Here code prays to Allah. مجد الله!
         if data:
@@ -28,8 +35,8 @@ class Master:
         return data
 
     async def async_parse_product_by_tag(self, tag: 'str') -> 'Optional[list[Product]]':
-        # DEBUG
-        print(f"{datetime.datetime.now()} | Tag to parse: {tag}")
+
+        self.logger.debug(f"Tag to parse: {tag}")
 
         data = parser.search(tag)
         if len(data) == 0:
@@ -58,7 +65,8 @@ class Master:
             return
 
         if cached_product.price != product.price:
-            await self.product_change_event.invoke(ProductChangeArgs(product, "price", cached_product.price, product.price))
+            await self.product_change_event.invoke(
+                ProductChangeArgs(product, "price", cached_product.price, product.price))
 
         if cached_product.sizes != product.sizes:
             pass
