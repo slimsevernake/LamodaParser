@@ -21,12 +21,8 @@ async def product(ctx: Context, *, product_tag: str):
 
 
 @bot.command()
-async def check(ctx: Context):
-    # print(master.product_db)
-    print(len(master.product_db))
-    # for el in master.product_db:
-    #     await async_send_embed(el.to_embed())
-    #     print(el)
+async def ping(ctx: Context):
+    await ctx.send(content="pong")
 
 
 def is_sku(tag: str):
