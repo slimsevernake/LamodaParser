@@ -1,11 +1,10 @@
-import random
-import settings
-
+import LamodaBot.bot_settings as settings
 from discord.ext import tasks
 from discord.ext.commands import Bot, Context
 
 from Master.Master import Master
-from WebhookHandle import async_send_embed
+from Master.WebhookHandle import async_send_embed
+
 
 bot = Bot(command_prefix=settings.bot_settings['bot_prefix'])
 master = Master()
@@ -63,27 +62,15 @@ async def async_monitor_products():
     await master.monitor_products()
 
 
-# @tasks.loop(minutes=settings.bot_settings['update_tags_loop_time'])
-# async def async_monitor_update():
-#     for product_tag in settings.products_to_monitor:
-#         await master.async_parse_product_by_tag(product_tag)
-
-
-# TODO: REMOVE METHOD!!!
-@tasks.loop(hours=10)
-async def async_update_products_test():
-    if len(master.product_db) == 0:
-        return
-    random_product = random.randint(0, len(master.product_db) - 1)
-    master.product_db[random_product].price = random.randint(100, 500000)
-
+@tasks.loop(minutes=settings.bot_settings['update_tags_loop_time'])
+async def async_monitor_update():
+    for product_tag in settings.products_to_monitor:
+        await master.async_parse_product_by_tag(product_tag)
 
 # async_monitor_products.before_loop(bot.wait_until_ready)
 # async_monitor_update.before_loop(bot.wait_until_ready)
-# async_update_products_test.before_loop(bot.wait_until_ready)
 
 async_monitor_products.start()
-# async_monitor_update.start()
-# async_update_products_test.start()
+async_monitor_update.start()
 
 bot.run(settings.bot_settings['token'])
