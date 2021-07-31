@@ -1,5 +1,5 @@
 from typing import Optional
-
+import datetime
 from Master.WebhookHandle import *
 from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
 from Modules.Product import Product
@@ -19,6 +19,7 @@ class Master:
         self.product_change_event.subscribe(OnProductChange())
 
     async def async_process_product_by_sku(self, sku: 'str') -> 'Optional[Product]':
+        print(f"{datetime.datetime.now()} | SKU to parse: {sku}")
         data = parser.product_by_sku(sku)
         # Here code prays to Allah. مجد الله!
         if data:
@@ -28,7 +29,7 @@ class Master:
 
     async def async_parse_product_by_tag(self, tag: 'str') -> 'Optional[list[Product]]':
         # DEBUG
-        print(f"tag to parse: {tag}")
+        print(f"{datetime.datetime.now()} | Tag to parse: {tag}")
 
         data = parser.search(tag)
         if len(data) == 0:

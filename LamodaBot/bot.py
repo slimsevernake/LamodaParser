@@ -1,6 +1,7 @@
 import LamodaBot.bot_settings as settings
 from discord.ext import tasks
 from discord.ext.commands import Bot, Context
+import datetime
 
 import app_logger
 from Master.Master import Master
@@ -66,7 +67,7 @@ async def async_monitor_products():
     await master.monitor_products()
 
 
-@tasks.loop(minutes=settings.bot_settings['update_tags_loop_time'])
+@tasks.loop(seconds=settings.bot_settings['update_tags_loop_time'])
 async def async_monitor_update():
     for product_tag in settings.products_to_monitor:
         await master.async_parse_product_by_tag(product_tag)
@@ -74,7 +75,10 @@ async def async_monitor_update():
 # async_monitor_products.before_loop(bot.wait_until_ready)
 # async_monitor_update.before_loop(bot.wait_until_ready)
 
-async_monitor_products.start()
-async_monitor_update.start()
+try:
+    async_monitor_products.start()
+    async_monitor_update.start()
 
-bot.run(settings.bot_settings['token'])
+    bot.run(settings.bot_settings['token'])
+except Exception as ex:
+    print(ex)

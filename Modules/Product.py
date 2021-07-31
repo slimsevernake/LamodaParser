@@ -7,7 +7,7 @@ class Product:
                  price=0):
         self.brand = brand
         self.name = name
-        self.article = article
+        self.article = article.upper()
         self.type = type
         self.image_link = image_link
         self.status = ProductStatus.IN_STOCK if status is None else status
@@ -30,6 +30,7 @@ class Product:
                        color=Colour.magenta())
         result.set_thumbnail(url="https:"+self.image_link)
         result.add_field(name="Артикул: ", value=str(self.article), inline=False)
+        result.add_field(name="Статус: ", value=self.status.name.replace("_", " "), inline=False)
         # result.add_field(name="Статус: ", value=str(self.status.name.replace("_", " ")), inline=False)
         result.add_field(name="Цена: ", value=f"{self.price} RUB", inline=False)
 
@@ -43,10 +44,6 @@ class Product:
                 result.add_field(inline=True,
                                  name=f"Российский размер: {size['value']}",
                                  value=f"Размер бренда: {size['brandSize']}")
-            # if len(available_sizes) > 0:
-            #    result.add_field(name="Доступные размеры: ",
-            #                 value="\n".join([size["value"] for size in available_sizes]),
-            #                 inline=False)
         return result
 
 

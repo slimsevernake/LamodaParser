@@ -2,7 +2,8 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import Parser.utils as utils
-from Modules.Product import Product
+from Modules.Product import Product, ProductStatus
+import datetime
 
 SEARCH_URL = 'https://www.lamoda.ru/catalogsearch/result/?q={0}&page={1}'.format
 HOME_URL = 'https://www.lamoda.ru{0}'.format
@@ -47,7 +48,8 @@ def parse_product(url, short_url=False):
 
             p_type = p_grid.find("x-product-title")["product-name"]
 
-            sizes = p_grid.find("script", attrs={"data-module": "statistics"}).decode().replace("\n", "").replace(" ", "")
+            sizes = p_grid.find("script", attrs={"data-module": "statistics"}).decode().replace("\n", "").replace(" ",
+                                                                                                                  "")
             pack = re.search('"sizes":\[[^]]*', sizes)[0].replace('"sizes":[', '')
             p_sizes = utils.parse_sizes(pack)
 
@@ -55,19 +57,22 @@ def parse_product(url, short_url=False):
             if is_available is not None:
                 p_price_text = p_grid.find_all("span", class_="product-prices__price")[-1].text
                 p_price = float(''.join(filter(str.isalnum, p_price_text)))
+                p_status = ProductStatus.IN_STOCK
             else:
                 p_price = 0
+                p_status = ProductStatus.OUT_OF_STOCK
 
-            # TODO: Доделать парс статуса
-            return Product(brand=p_brand,
-                           name=p_name,
-                           article=p_article,
-                           type=p_type,
-                           image_link=p_image,
-                           status=None,
-                           sizes=p_sizes,
-                           link=p_link,
-                           price=p_price)
+            product = Product(brand=p_brand,
+                              name=p_name,
+                              article=p_article,
+                              type=p_type,
+                              image_link=p_image,
+                              status=p_status,
+                              sizes=p_sizes,
+                              link=p_link,
+                              price=p_price)
+            print(f"{datetime.datetime.now()} | {product}".replace("\n", "    "))
+            return product
         except Exception as ex:
             print(ex)
             return None
@@ -83,4 +88,3 @@ def product_by_sku(sku):
     except Exception as ex:
         print(ex)
         return None
-
