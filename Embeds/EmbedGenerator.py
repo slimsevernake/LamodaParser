@@ -1,5 +1,5 @@
 from discord import Embed
-from Master.ProductChangeEvent import ProductChangeArgs
+from Master.ProductChangeEvent import *
 
 
 class EmbedGenerator:

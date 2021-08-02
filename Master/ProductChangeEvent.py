@@ -1,4 +1,3 @@
-from discord import Colour, Embed
 from Master.WebhookHandle import async_send_embed
 from Master.Event import Event, Subscriber
 from Modules.Product import Product
@@ -27,6 +26,7 @@ class OnProductChange(Subscriber):
             embed = EmbedGenerator.sizes_updated_embed(args)
         if embed is not None:
             await async_send_embed(embed)
+
 
 class ProductChangeEvent(Event):
     async def invoke(self, args: 'ProductChangeArgs'):
