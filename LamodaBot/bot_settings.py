@@ -14,9 +14,10 @@ products_to_monitor = [
     "SKU: RTLAAJ776201",
     "SKU: RTLAAK094901",
     "SKU: RTLAAN561101",
-    "SKU: rtlaan501301",
-    "SKU: rtlaam983301",
-    "SKU: rtlaan266801",
-    "SKU: rtlaak943702",
-    "SKU: rtlaam621301"
+    "SKU: RTLAAN501301",
+    "SKU: RTLAAM983301",
+    "SKU: RTLAAN266801",
+    "SKU: RTLAAK943702",
+    "SKU: RTLAAM621301"
 ]
+

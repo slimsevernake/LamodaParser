@@ -57,12 +57,16 @@ class Master:
                 ProductChangeArgs(cached_product, "status", "product exists", "product was removed"))
             return
 
-        if cached_product.price != product.price:
-            await self.product_change_event.invoke(ProductChangeArgs(product, "price", cached_product.price, product.price))
+        args = None
+        if cached_product.status != product.status:
+            args = ProductChangeArgs(product, "status", cached_product.status, product.status)
+        elif cached_product.price != product.price:
+            args = ProductChangeArgs(product, "price", cached_product.price, product.price)
+        elif cached_product.sizes != product.sizes:
+            args = ProductChangeArgs(product, "sizes", cached_product.sizes, product.sizes)
 
-        if cached_product.sizes != product.sizes:
-            pass
-            # self.product_change_event.invoke(ProductChangeArgs(product, "sizes", cached_product.sizes, product.sizes))
+        if args is not None:
+            await self.product_change_event.invoke(args)
 
     # TODO: change to SQL request
     def get_product_by_tag(self, title: 'str') -> 'Optional[list[Product]]':

@@ -1,8 +1,8 @@
 from discord import Colour, Embed
-from Master.utils import get_field_index_by_name
 from Master.WebhookHandle import async_send_embed
 from Master.Event import Event, Subscriber
 from Modules.Product import Product
+from Embeds.EmbedGenerator import EmbedGenerator
 
 
 class ProductChangeArgs:
@@ -18,27 +18,18 @@ class ProductChangeArgs:
 
 class OnProductChange(Subscriber):
     async def __call__(self, args: 'ProductChangeArgs'):
-        data = args.product.to_embed()
-        data.description = "Изменение в товаре\n" + data.description
-        data.colour = Colour.blue()
-
-        if args.field == "price":
-            self.update_embed_field(data, args, "Цена: ")
-
+        embed = None
+        if args.field == "status":
+            embed = EmbedGenerator.status_updated_embed(args)
+        elif args.field == "price":
+            embed = EmbedGenerator.price_updated_embed(args)
+        elif args.field == "size":
+            embed = EmbedGenerator.sizes_updated_embed(args)
         # DEBUG
         print("========| UPDATE |========")
         print(args.product)
-
-        await async_send_embed(data)
-
-    @staticmethod
-    def update_embed_field(self, embed: 'Embed', args, name: 'str'):
-        field_index = get_field_index_by_name(embed, name)
-        if field_index == -1:
-            return None
-        embed.insert_field_at(field_index, name=name, value="~~{}~~ -> {}".format(args.prev_data, args.new_data),
-                              inline=False)
-        embed.remove_field(field_index + 1)
+        if embed is not None:
+            await async_send_embed(embed)
 
 
 class ProductChangeEvent(Event):

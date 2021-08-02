@@ -37,7 +37,7 @@ class Product:
         result.set_thumbnail(url="https:"+self.image_link)
         result.add_field(name="Артикул: ", value=str(self.article), inline=False)
         result.add_field(name="Статус: ", value=self.status.name.replace("_", " "), inline=False)
-        if self.status == ProductStatus.OUT_OF_STOCK:
+        if self.status == ProductStatus.IN_STOCK:
             result.add_field(name="Цена: ", value=f"{self.price} RUB", inline=False)
 
         if not self.sizes:
