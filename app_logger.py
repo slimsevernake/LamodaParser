@@ -6,10 +6,10 @@ import os
 # _log_format_debug = f"%(asctime)s - %(name)s - [%(levelname)s] - %(message)s"
 from typing import Union
 
-_log_format = f"%(asctime)s - %(name)s - [%(levelname)s] - (%(filename)s).%(funcName)s:%(lineno)d - %(message)s"
-_log_folder = "logs/"
-_log_max_bytes = 10485760  # 10 Megabytes
-_log_file_format = "{0:03d}--{1}.log"  # ex: 001--master.log
+LOG_FORMAT = f"%(asctime)s - %(name)s - [%(levelname)s] - (%(filename)s).%(funcName)s:%(lineno)d - %(message)s"
+LOG_FOLDER = "logs/"
+LOG_MAX_BYTES = 10485760  # 10 Megabytes
+LOG_FILE_FORMAT = "{0:03d}--{1}.log"  # ex: 001--master.log
 
 
 class DebugFilter(logging.Filter):
@@ -25,7 +25,7 @@ class SectionAdapter(logging.LoggerAdapter):
     """
     Adapter adds section field for logger
     """
-    SECTION_SIZE = 200  # number of records for each section
+    SECTION_SIZE = 300  # number of records for each section
     _section_id = 0  # current section
     _current_section_counter = 0  # number of record inside current section
 
@@ -46,9 +46,8 @@ def generate_new_log_name(name: 'str') -> 'str':
     :param name: logger name
     :return: filename of new log journal
     """
-    _, _, files = next(os.walk(_log_folder))
-    file_count = len(files)
-    new_name = _log_file_format.format(file_count + 1, name)
+    file_count = len([f for f in os.listdir(LOG_FOLDER)])
+    new_name = LOG_FILE_FORMAT.format(file_count, name)
     return new_name
 
 
@@ -59,7 +58,7 @@ def get_file_handler(name: 'str') -> 'logging.FileHandler':
     :param name: logger name
     :return: file handler
     """
-    log_file = f"{_log_folder}{generate_new_log_name(name)}"
+    log_file = f"{LOG_FOLDER}{generate_new_log_name(name)}"
 
     # handler for different output for debug
     # file_handler_debug = logging.FileHandler(log_file)
@@ -67,9 +66,9 @@ def get_file_handler(name: 'str') -> 'logging.FileHandler':
     # file_handler_debug.addFilter(DebugFilter())
     # file_handler_debug.setFormatter(logging.Formatter(_log_format_debug))
 
-    file_handler_others = logging.handlers.RotatingFileHandler(log_file, maxBytes=_log_max_bytes, backupCount=100)
+    file_handler_others = logging.handlers.RotatingFileHandler(log_file, maxBytes=LOG_MAX_BYTES, backupCount=100)
     file_handler_others.setLevel(logging.DEBUG)  # should be replaced to logging.INFO
-    file_handler_others.setFormatter(logging.Formatter(_log_format))
+    file_handler_others.setFormatter(logging.Formatter(LOG_FORMAT))
 
     return file_handler_others  # file_handler_debug, file_handler_others
 
@@ -82,7 +81,7 @@ def get_stream_handler() -> 'logging.StreamHandler':
     """
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.DEBUG)
-    stream_handler.setFormatter(logging.Formatter(_log_format))
+    stream_handler.setFormatter(logging.Formatter(LOG_FORMAT))
     return stream_handler
 
 
