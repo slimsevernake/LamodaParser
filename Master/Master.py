@@ -1,5 +1,8 @@
+import asyncio
+from logging import Logger
 from typing import Optional
-import datetime
+
+import app_logger
 from Master.WebhookHandle import *
 from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
 from Modules.Product import Product
@@ -12,15 +15,23 @@ class Master:
     product_change_event: 'ProductChangeEvent'
     tags: 'list[str]'
 
-    def __init__(self):
+    def __init__(self, logger: 'Logger' = None):
         self.product_db = []
         self.tags = []
         self.product_change_event = ProductChangeEvent()
         self.product_change_event.subscribe(OnProductChange())
 
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = app_logger.get_logger("master")
+
+        self.logger.info("master initiated")
+
     async def async_process_product_by_sku(self, sku: 'str') -> 'Optional[Product]':
-        print(f"{datetime.datetime.now()} | SKU to parse: {sku}")
-        data = parser.product_by_sku(sku)
+        self.logger.debug(f"SKU to parse: {sku}")
+
+        data = parser.product_by_sku(sku, self.logger)
         # Here code prays to Allah. مجد الله!
         if data:
             await self.handle_product(data)
@@ -28,10 +39,10 @@ class Master:
         return data
 
     async def async_parse_product_by_tag(self, tag: 'str') -> 'Optional[list[Product]]':
-        # DEBUG
-        print(f"{datetime.datetime.now()} | Tag to parse: {tag}")
 
-        data = parser.search(tag)
+        self.logger.debug(f"Tag to parse: {tag}")
+
+        data = parser.search(tag, self.logger)
         if len(data) == 0:
             return None
         loop = asyncio.get_event_loop()
@@ -47,7 +58,7 @@ class Master:
 
     async def monitor_products(self):
         for cached_product in self.product_db:
-            product = parser.product_by_sku(cached_product.article)
+            product = parser.product_by_sku(cached_product.article, self.logger)
             await self.check_product_changed(product, cached_product)
 
     async def check_product_changed(self, product: 'Product', cached_product: 'Product') -> None:

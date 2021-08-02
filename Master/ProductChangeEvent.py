@@ -25,12 +25,8 @@ class OnProductChange(Subscriber):
             embed = EmbedGenerator.price_updated_embed(args)
         elif args.field == "size":
             embed = EmbedGenerator.sizes_updated_embed(args)
-        # DEBUG
-        print("========| UPDATE |========")
-        print(args.product)
         if embed is not None:
             await async_send_embed(embed)
-
 
 class ProductChangeEvent(Event):
     async def invoke(self, args: 'ProductChangeArgs'):
