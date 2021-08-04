@@ -29,6 +29,9 @@ class Product:
                f"Link: {self.link}\n" \
                f"Image: {self.image_link}\n" \
                f"Sizes: {' '.join([size.get('value', -1) for size in self.sizes])}\n"
+               
+    def get_available_sizes(self):
+        return list(filter(lambda x: x["available"], self.sizes))
 
     def to_embed(self):
         print("EMBEDDED!")
@@ -40,10 +43,10 @@ class Product:
         if self.status == ProductStatus.IN_STOCK:
             result.add_field(name="Цена: ", value=f"{self.price} RUB", inline=False)
 
-        if not self.sizes:
+        if not self.get_available_sizes():
             return result
         else:
-            available_sizes = list(filter(lambda x: x["available"], self.sizes))
+            available_sizes = self.get_available_sizes()
             if len(available_sizes) > 0:
                 result.add_field(name="Размеры: ", value=f"\0", inline=False)
                 for size in available_sizes:

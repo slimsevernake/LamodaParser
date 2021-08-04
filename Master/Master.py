@@ -4,7 +4,7 @@ from typing import Optional
 
 import app_logger
 from Master.WebhookHandle import *
-from Master.ProductChangeEvent import ProductChangeEvent, OnProductChange, ProductChangeArgs
+from Master.ProductChangeEvent import ProductChangeHandler
 from Modules.Product import Product
 
 import Parser.parser as parser
@@ -12,14 +12,11 @@ import Parser.parser as parser
 
 class Master:
     product_db: 'list[Product]'
-    product_change_event: 'ProductChangeEvent'
     tags: 'list[str]'
 
     def __init__(self, logger: 'Logger' = None):
         self.product_db = []
         self.tags = []
-        self.product_change_event = ProductChangeEvent()
-        self.product_change_event.subscribe(OnProductChange())
 
         if logger:
             self.logger = logger
@@ -62,22 +59,19 @@ class Master:
             await self.check_product_changed(product, cached_product)
 
     async def check_product_changed(self, product: 'Product', cached_product: 'Product') -> None:
-        if not product:
-            # product has disappeared
-            await self.product_change_event.invoke(
-                ProductChangeArgs(cached_product, "status", "product exists", "product was removed"))
-            return
-
-        args = None
-        if cached_product.status != product.status:
-            args = ProductChangeArgs(product, "status", cached_product.status, product.status)
-        elif cached_product.price != product.price:
-            args = ProductChangeArgs(product, "price", cached_product.price, product.price)
-        elif cached_product.sizes != product.sizes:
-            args = ProductChangeArgs(product, "sizes", cached_product.sizes, product.sizes)
-
-        if args is not None:
-            await self.product_change_event.invoke(args)
+        if product is None:
+            if cached_product is not None:
+                cached_product.status = cached_product.status
+        else:
+            if cached_product.get_available_sizes() != product.get_available_sizes():
+                ProductChangeHandler.on_size_changed(product)
+                cached_product.sizes = product.sizes
+            if cached_product.price != product.price:
+                ProductChangeHandler.on_price_changed(product, cached_product.price)
+                cached_product.price = product.price
+            if cached_product.status != product.status:
+                ProductChangeHandler.on_status_changed(product)
+                cached_product.status = product.status
 
     # TODO: change to SQL request
     def get_product_by_tag(self, title: 'str') -> 'Optional[list[Product]]':

@@ -1,5 +1,6 @@
 from discord import Embed
 from Master.ProductChangeEvent import *
+from Modules.Product import Product, ProductStatus
 
 
 class EmbedGenerator:
@@ -22,26 +23,24 @@ class EmbedGenerator:
         return -1
 
     @staticmethod
-    def price_updated_embed(args: 'ProductChangeArgs'):
-        product_embed = args.product.to_embed()
+    def price_updated_embed(product: 'Product', old_price: float):
+        product_embed = product.to_embed()
         product_embed.description = "Цена товара изменилась: " + product_embed.description
-        EmbedGenerator.update_embed_field(embed=product_embed,
-                                          value="~~{}~~ -> {}".format(args.prev_data, args.new_data),
-                                          name="Цена: ")
+        if product.status != ProductStatus.OUT_OF_STOCK:
+            EmbedGenerator.update_embed_field(embed=product_embed,
+                                              value="~~{}~~ -> {}".format(old_price, product.price),
+                                              name="Цена: ")
         return product_embed
 
     @staticmethod
-    def status_updated_embed(args: 'ProductChangeArgs'):
-        product_embed = args.product.to_embed()
+    def status_updated_embed(product: 'Product'):
+        product_embed = product.to_embed()
         product_embed.description = "Статус товара изменился: " + product_embed.description
-        EmbedGenerator.update_embed_field(embed=product_embed,
-                                          value=f"{args.new_data}",
-                                          name="Статус: ")
         return product_embed
 
     @staticmethod
-    def sizes_updated_embed(args: 'ProductChangeArgs'):
-        product_embed = args.product.to_embed()
+    def sizes_updated_embed(product: 'Product'):
+        product_embed = product.to_embed()
         product_embed.description = "Количество доступных размеров изменилось: " + product_embed.description
         return product_embed
 

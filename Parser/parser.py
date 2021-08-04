@@ -1,5 +1,4 @@
 from logging import Logger
-
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -17,7 +16,7 @@ def search(tag, logger: 'Logger', pages=3):
     for page_num in range(1, pages + 1):
         page = requests.get(SEARCH_URL(tag, page_num))
         if page.status_code == 200:
-            soup = BeautifulSoup(page.text, "lxml")
+            soup = BeautifulSoup(page.text, "html.parser")
             if "Поиск не дал результатов" in soup.text:
                 return list()
             product_card_list = soup.findAll("div", class_="products-list-item")
@@ -36,7 +35,7 @@ def parse_product(url, logger: 'Logger', short_url=False):
     page = requests.get(url)
     if page.status_code == 200:
         try:
-            soup = BeautifulSoup(page.text, "lxml")
+            soup = BeautifulSoup(page.text, "html.parser")
             p_grid = soup.find("div", class_="grid__product")
             p_brand = p_grid.find("h1", class_="product-title__brand-name")["title"]
             p_name = p_grid.find("h1", class_="product-title__brand-name").find("span").text
