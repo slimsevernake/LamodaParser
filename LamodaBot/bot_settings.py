@@ -21,3 +21,7 @@ products_to_monitor = [
     "SKU: RTLAAM621301"
 ]
 
+forbidden_pieces = [
+    "mid",
+    "govno"
+]

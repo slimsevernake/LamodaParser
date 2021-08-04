@@ -3,7 +3,7 @@ import logging
 import LamodaBot.bot_settings as settings
 from discord.ext import tasks
 from discord.ext.commands import Bot, Context
-
+import LamodaBot.utils as utils
 import app_logger
 from Master.Master import Master
 from Master.WebhookHandle import async_send_embed
@@ -27,30 +27,11 @@ async def ping(ctx: Context):
     await ctx.send(content="pong")
 
 
-def is_sku(tag: str):
-    splitted = tag.split()
-    if len(splitted) == 2:
-        if splitted[0] == "SKU:":
-            return True, splitted[1]
-        else:
-            return False, None
-    else:
-        return False, None
-
-
-async def process_product(product_tag):
-    condition, sku = is_sku(product_tag)
-    if condition:
-        await master.async_process_product_by_sku(sku)
-    else:
-        await master.async_parse_product_by_tag(product_tag)
-
-
 @bot.event
 async def on_ready():
     logger.info("bot initiated")
     for product_tag in settings.products_to_monitor:
-        await process_product(product_tag)
+        await utils.process_product(product_tag, master)
 
     logger.info("bot started parsing products")
 
@@ -72,7 +53,7 @@ async def async_monitor_products():
 @tasks.loop(seconds=settings.bot_settings['update_tags_loop_time'])
 async def async_monitor_update():
     for product_tag in settings.products_to_monitor:
-        await process_product(product_tag)
+        await utils.process_product(product_tag, master)
 
 # async_monitor_products.before_loop(bot.wait_until_ready)
 # async_monitor_update.before_loop(bot.wait_until_ready)
