@@ -1,24 +1,27 @@
+from logging import Logger
 from bs4 import BeautifulSoup
 import requests
 import re
 import Parser.utils as utils
-from Modules.Product import Product
+from Modules.Product import Product, ProductStatus
+import datetime
 
 SEARCH_URL = 'https://www.lamoda.ru/catalogsearch/result/?q={0}&page={1}'.format
 HOME_URL = 'https://www.lamoda.ru{0}'.format
+PRODUCT_URL = 'https://www.lamoda.ru/p/{0}/'.format
 
 
-def search(tag, pages=3):
+def search(tag, logger: 'Logger', pages=3):
     result = []
     for page_num in range(1, pages + 1):
         page = requests.get(SEARCH_URL(tag, page_num))
         if page.status_code == 200:
-            soup = BeautifulSoup(page.text, "lxml")
+            soup = BeautifulSoup(page.text, "html.parser")
             if "Поиск не дал результатов" in soup.text:
                 return list()
             product_card_list = soup.findAll("div", class_="products-list-item")
             for card in product_card_list:
-                parsed = parse_product(card.find("a")["href"], short_url=True)
+                parsed = parse_product(card.find("a")["href"], short_url=True, logger=logger)
                 if parsed is not None:
                     result.append(parsed)
         else:
@@ -26,13 +29,13 @@ def search(tag, pages=3):
         return result
 
 
-def parse_product(url, short_url=False):
+def parse_product(url, logger: 'Logger', short_url=False):
     if short_url:
         url = HOME_URL(url)
     page = requests.get(url)
     if page.status_code == 200:
         try:
-            soup = BeautifulSoup(page.text, "lxml")
+            soup = BeautifulSoup(page.text, "html.parser")
             p_grid = soup.find("div", class_="grid__product")
             p_brand = p_grid.find("h1", class_="product-title__brand-name")["title"]
             p_name = p_grid.find("h1", class_="product-title__brand-name").find("span").text
@@ -47,7 +50,8 @@ def parse_product(url, short_url=False):
 
             p_type = p_grid.find("x-product-title")["product-name"]
 
-            sizes = p_grid.find("script", attrs={"data-module": "statistics"}).decode().replace("\n", "").replace(" ", "")
+            sizes = p_grid.find("script", attrs={"data-module": "statistics"}).decode().replace("\n", "").replace(" ",
+                                                                                                                  "")
             pack = re.search('"sizes":\[[^]]*', sizes)[0].replace('"sizes":[', '')
             p_sizes = utils.parse_sizes(pack)
 
@@ -55,32 +59,37 @@ def parse_product(url, short_url=False):
             if is_available is not None:
                 p_price_text = p_grid.find_all("span", class_="product-prices__price")[-1].text
                 p_price = float(''.join(filter(str.isalnum, p_price_text)))
+                p_status = ProductStatus.IN_STOCK
             else:
                 p_price = 0
+                p_status = ProductStatus.OUT_OF_STOCK
 
-            # TODO: Доделать парс статуса
-            return Product(brand=p_brand,
-                           name=p_name,
-                           article=p_article,
-                           type=p_type,
-                           image_link=p_image,
-                           status=None,
-                           sizes=p_sizes,
-                           link=p_link,
-                           price=p_price)
+            product = Product(brand=p_brand,
+                              name=p_name,
+                              article=p_article,
+                              type=p_type,
+                              image_link=p_image,
+                              status=p_status,
+                              sizes=p_sizes,
+                              link=p_link,
+                              price=p_price)
+            logger.debug(f"{product}".replace("\n", "    "))
+            # print(f"{datetime.datetime.now()} | {product}".replace("\n", "    "))
+            return product
         except Exception as ex:
-            print(ex)
+            logger.exception(ex)
+            # print(ex)
             return None
     else:
         return None
 
 
-def product_by_sku(sku):
+def product_by_sku(sku, logger: 'Logger'):
     try:
-        product = parse_product(SEARCH_URL(sku, 1))
+        product = parse_product(PRODUCT_URL(sku), logger=logger)
         product.article = sku
         return product
     except Exception as ex:
-        print(ex)
+        logger.exception(ex)
+        # print(ex)
         return None
-

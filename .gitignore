@@ -1,10 +1,9 @@
 
 .idea/
-venv/
-Master/__pycache__/
 
+LamodaBot/__pycache__/
+
+Master/__pycache__/
 Modules/__pycache__/
 
 Parser/__pycache__/
-
-__pycache__/
