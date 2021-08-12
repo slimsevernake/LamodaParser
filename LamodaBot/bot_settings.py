@@ -18,7 +18,8 @@ products_to_monitor = [
     "SKU: RTLAAM983301",
     "SKU: RTLAAN266801",
     "SKU: RTLAAK943702",
-    "SKU: RTLAAM621301"
+    "SKU: RTLAAM621301",
+    "EXTENDED: +nike +jordan -mid"
 ]
 
 forbidden_pieces = [
