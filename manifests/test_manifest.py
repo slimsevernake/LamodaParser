@@ -1,6 +1,3 @@
-
-# allowed
-
 products_to_monitor = [
     "SKU: RTLAAL822701",
     "SKU: RTLAAN499001",
@@ -13,10 +10,6 @@ products_to_monitor = [
     "SKU: RTLAAM983301",
     "SKU: RTLAAN266801",
     "SKU: RTLAAK943702",
-    "SKU: RTLAAM621301"
-]
-
-forbidden_pieces = [
-    "mid",
-    "govno"
+    "SKU: RTLAAM621301",
+    "EXTENDED: +nike +jordan -mid"
 ]
