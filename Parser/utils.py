@@ -4,9 +4,13 @@ import json
 
 def parse_sizes(sizes):
     splitted = re.findall("{[^}]*}", sizes)
-    return [parse_size(parsed_size) for parsed_size in splitted]
+    result_wo_filter = [parse_size(parsed_size) for parsed_size in splitted]
+    return list(filter(lambda x: x is not None, result_wo_filter))
 
 
 def parse_size(size_data):
     result = json.loads(size_data)
-    return result
+    if result["available"]:
+        return result
+    else:
+        return None
