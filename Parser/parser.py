@@ -10,7 +10,27 @@ HOME_URL = 'https://www.lamoda.ru{0}'.format
 PRODUCT_URL = 'https://www.lamoda.ru/p/{0}/'.format
 
 
-def search(tag, logger: 'Logger', pages=1):
+def smart_search(pattern: str, logger: 'Logger', pages=1):
+    result = []
+    for page_num in range(1, pages + 1):
+        tag = utils.generate_name_from_pattern(pattern)
+        page = requests.get(SEARCH_URL(tag, page_num))
+        if page.status_code == 200:
+            soup = BeautifulSoup(page.text, "html.parser")
+            if "Поиск не дал результатов" in soup.text:
+                return list()
+            product_card_list = soup.findAll("div", class_="products-list-item")
+            for card in product_card_list:
+                name = card.find("span", class_="products-list-item__type").text.strip()
+                if utils.check_name(name, pattern):
+                    print(name)
+                    result.append(utils.get_sku_from_url(card.find("a")["href"]) )
+        else:
+            return result
+        return result
+
+
+def search_skus(tag, logger: 'Logger', pages=1):
     result = []
     for page_num in range(1, pages + 1):
         page = requests.get(SEARCH_URL(tag, page_num))
@@ -19,13 +39,20 @@ def search(tag, logger: 'Logger', pages=1):
             if "Поиск не дал результатов" in soup.text:
                 return list()
             product_card_list = soup.findAll("div", class_="products-list-item")
-            for card in product_card_list:
-                parsed = parse_product(card.find("a")["href"], short_url=True, logger=logger)
-                if parsed is not None:
-                    result.append(parsed)
+            return [utils.get_sku_from_url(card.find("a")["href"]) for card in product_card_list]
         else:
             return result
         return result
+
+
+def search(tag, logger: 'Logger', pages=1):
+    result = []
+    skus = search_skus(tag, logger, pages)
+    for sku in skus:
+        parsed = product_by_sku(sku, logger)
+        if parsed is not None:
+            result.append(parsed)
+    return result
 
 
 def parse_product(url, logger: 'Logger', short_url=False):
@@ -58,13 +85,13 @@ def parse_product(url, logger: 'Logger', short_url=False):
             p_status = ProductStatus.OUT_OF_STOCK
         product = Product(brand=p_brand,
                           name=p_name,
-                          sku=p_sku,
+                          sku=utils.get_proper_sku(p_sku),
                           image_link=p_image,
                           status=p_status,
                           sizes=p_sizes,
                           link=p_link,
                           price=p_price)
-        logger.debug(f"{product}")
+        #logger.debug(f"{product}")
         return product
     except:
         return None
@@ -76,11 +103,11 @@ def product_by_sku(sku, logger: 'Logger'):
     if product is None:
         return Product(brand=None,
                        name=None,
-                       sku=sku,
+                       sku=utils.get_proper_sku(sku),
                        image_link=None,
                        status=ProductStatus.OUT_OF_STOCK,
                        sizes=list(),
-                       link=None,
+                       link=PRODUCT_URL(sku),
                        price=None)
     else:
         product.set_sku(sku)
