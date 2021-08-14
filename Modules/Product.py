@@ -31,8 +31,12 @@ class Product:
                f"Image: {self.image_link} | " \
                f"Sizes: {' '.join([size.get('value', -1) for size in self.sizes])}"
 
+    @staticmethod
+    def make_proper_sku(sku):
+        return sku.strip().upper()
+
     def set_sku(self, new_sku):
-        self.sku = new_sku.upper()
+        self.sku = Product.make_proper_sku(new_sku)
 
     @staticmethod
     def get_copy(product: 'Product'):
@@ -47,7 +51,7 @@ class Product:
 
     def to_embed(self):
         print("EMBEDDED!")
-        result = Embed(title=self.name, url=f"{self.link}", description=f"Описание: {self.brand}",
+        result = Embed(title=f"{self.name} | {self.brand}", url=f"{self.link}", description="",
                        color=Colour.magenta())
         result.set_thumbnail(url=self.image_link)
         result.add_field(name="Артикул: ", value=str(self.sku), inline=False)

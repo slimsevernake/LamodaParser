@@ -10,7 +10,7 @@ HOME_URL = 'https://www.lamoda.ru{0}'.format
 PRODUCT_URL = 'https://www.lamoda.ru/p/{0}/'.format
 
 
-def smart_search(pattern: str, logger: 'Logger', pages=1):
+def smart_search(pattern, pages=1):
     result = []
     for page_num in range(1, pages + 1):
         tag = utils.generate_name_from_pattern(pattern)
@@ -23,14 +23,16 @@ def smart_search(pattern: str, logger: 'Logger', pages=1):
             for card in product_card_list:
                 name = card.find("span", class_="products-list-item__type").text.strip()
                 if utils.check_name(name, pattern):
-                    print(name)
-                    result.append(utils.get_sku_from_url(card.find("a")["href"]) )
+                    parsed = parse_product(card.find("a")["href"], None, True)
+                    print(parsed)
+                    if parsed is not None:
+                        result.append(parsed)
         else:
             return result
         return result
 
 
-def search_skus(tag, logger: 'Logger', pages=1):
+def search_skus(tag, pages=1):
     result = []
     for page_num in range(1, pages + 1):
         page = requests.get(SEARCH_URL(tag, page_num))
@@ -47,15 +49,15 @@ def search_skus(tag, logger: 'Logger', pages=1):
 
 def search(tag, logger: 'Logger', pages=1):
     result = []
-    skus = search_skus(tag, logger, pages)
+    skus = search_skus(tag, pages)
     for sku in skus:
-        parsed = product_by_sku(sku, logger)
+        parsed = product_by_sku(sku)
         if parsed is not None:
             result.append(parsed)
     return result
 
 
-def parse_product(url, logger: 'Logger', short_url=False):
+def parse_product(url, short_url=False):
     if short_url:
         url = HOME_URL(url)
     page = requests.get(url)
@@ -85,7 +87,7 @@ def parse_product(url, logger: 'Logger', short_url=False):
             p_status = ProductStatus.OUT_OF_STOCK
         product = Product(brand=p_brand,
                           name=p_name,
-                          sku=utils.get_proper_sku(p_sku),
+                          sku=utils.Product.make_proper_sku(p_sku),
                           image_link=p_image,
                           status=p_status,
                           sizes=p_sizes,
@@ -98,12 +100,12 @@ def parse_product(url, logger: 'Logger', short_url=False):
 
 
 # Return Product with certain sku instead of None.
-def product_by_sku(sku, logger: 'Logger'):
-    product = parse_product(PRODUCT_URL(sku), logger=logger)
+def product_by_sku(sku):
+    product = parse_product(PRODUCT_URL(sku))
     if product is None:
         return Product(brand=None,
                        name=None,
-                       sku=utils.get_proper_sku(sku),
+                       sku=Product.make_proper_sku(sku),
                        image_link=None,
                        status=ProductStatus.OUT_OF_STOCK,
                        sizes=list(),
