@@ -1,8 +1,9 @@
+import copy
 import enum
 from dataclasses import dataclass
 from typing import Optional
+from datetime import datetime
 from discord import Embed, Colour
-import copy
 
 
 class ProductStatus(enum.Enum):
@@ -50,19 +51,20 @@ class Product:
                        price=product.price)
 
     def to_embed(self):
-        print("EMBEDDED!")
         result = Embed(title=f"{self.name} | {self.brand}", url=f"{self.link}", description="",
                        color=Colour.magenta())
         result.set_thumbnail(url=self.image_link)
         result.add_field(name="Артикул: ", value=str(self.sku), inline=False)
         result.add_field(name="Статус: ", value=self.status.name.replace("_", " "), inline=False)
+        tstamp = datetime.now().strftime("%H:%M:%S")
+        result.set_footer(text=f"SC 2.0 | by 5еХ9оD&Brem -- [{tstamp}]", icon_url=Embed.Empty)
         if self.status == ProductStatus.IN_STOCK:
             result.add_field(name="Цена: ", value=f"{self.price} RUB", inline=False)
         if not self.sizes:
             return result
         else:
             if len(self.sizes) > 0:
-                result.add_field(name="Размеры: ", value=f"\0", inline=False)
+                result.add_field(name="Размеры: ", value="\0", inline=False)
                 for size in self.sizes:
                     result.add_field(inline=True,
                                      name=f"Российский размер: {size['value']}",

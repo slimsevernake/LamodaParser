@@ -23,8 +23,8 @@ def smart_search(pattern, pages=1):
             for card in product_card_list:
                 name = card.find("span", class_="products-list-item__type").text.strip()
                 if utils.check_name(name, pattern):
-                    parsed = parse_product(card.find("a")["href"], None, True)
-                    print(parsed)
+                    parsed = parse_product(card.find("a")["href"], True)
+                    # print(parsed)
                     if parsed is not None:
                         result.append(parsed)
         else:
@@ -44,7 +44,7 @@ def search_skus(tag, pages=1):
             return [utils.get_sku_from_url(card.find("a")["href"]) for card in product_card_list]
         else:
             return result
-        return result
+    return result
 
 
 def search(tag, logger: 'Logger', pages=1):
@@ -87,13 +87,13 @@ def parse_product(url, short_url=False):
             p_status = ProductStatus.OUT_OF_STOCK
         product = Product(brand=p_brand,
                           name=p_name,
-                          sku=utils.Product.make_proper_sku(p_sku),
+                          sku=Product.make_proper_sku(p_sku),
                           image_link=p_image,
                           status=p_status,
                           sizes=p_sizes,
                           link=p_link,
                           price=p_price)
-        #logger.debug(f"{product}")
+        # logger.debug(f"{product}")
         return product
     except:
         return None

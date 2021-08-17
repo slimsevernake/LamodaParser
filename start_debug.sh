@@ -1,6 +1,6 @@
 # exporting evn vars to run python correctly:
 if [ -z $PYTHONPATH ]; then 
-	export PYTHONPATH=$HOME/LMonitorV1-3/:$HOME/LParserVenv/Lib/site-packages;
+	export PYTHONPATH=$HOME/LMonitorV1-4/:$HOME/LParserVenv/Lib/site-packages;
 else
 	echo "PYTHONPATH is set"
 fi
@@ -8,7 +8,7 @@ fi
 
 # checking current dir
 current_dir=${PWD##*/}
-if [ "$current_dir" != "LMonitorV1-3" ]; then
+if [ "$current_dir" != "LMonitorV1-4" ]; then
 	echo "!!! You should be located in the root of the project in order to start the bot !!!";
 	echo "Quiting"
 else

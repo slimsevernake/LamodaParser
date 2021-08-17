@@ -1,5 +1,4 @@
 from discord import Embed
-from Master.ProductChangeEvent import *
 
 
 class EmbedEditor:

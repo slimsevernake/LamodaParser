@@ -1,4 +1,18 @@
 products_to_monitor = [
+    "SKU: RTLAAN272001",
+    "SKU: NI464AMLZLC8",
+    "SKU: RTLAAM988101",
+    "SKU: RTLAAK868002",
+    "SKU: RTLAAK687401",
+    "SKU: NI464AMLZLD6",
+    "SKU: RTLAAK683301",
+    "SKU: NI464AMMUSK2",
+    "SKU: NI464AWLZTY5",
+    "SKU: NI464AWMQCP4",
+    "SKU: JO025AWLYXO2",
+    "SKU: NI464AWLZLK9",
+    "SKU: NI464AWLZTY6",
+    "SKU: NI464AKMABL0",
     "SKU: RTLAAL822701",
     "SKU: RTLAAN499001",
     "SKU: RTLAAN275301",
@@ -11,5 +25,8 @@ products_to_monitor = [
     "SKU: RTLAAN266801",
     "SKU: RTLAAK943702",
     "SKU: RTLAAM621301",
-    "EXTENDED: +nike +jordan -mid"
+    "EXTENDED: +W +NIKE +DUNK +LOW +DISRUPT",
+    "EXTENDED: +mid +Jordan +1",
+    "EXTENDED: +nike +dunk",
+    "EXTENDED: +adidas +bad +bunny +low"
 ]
