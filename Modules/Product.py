@@ -53,7 +53,8 @@ class Product:
     def to_embed(self):
         result = Embed(title=f"{self.name} | {self.brand}", url=f"{self.link}", description="",
                        color=Colour.magenta())
-        result.set_thumbnail(url=self.image_link)
+        if self.image_link:
+            result.set_thumbnail(url=self.image_link)
         result.add_field(name="Артикул: ", value=str(self.sku), inline=False)
         result.add_field(name="Статус: ", value=self.status.name.replace("_", " "), inline=False)
         tstamp = datetime.now().strftime("%H:%M:%S")

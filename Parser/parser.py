@@ -74,9 +74,12 @@ def parse_product(url, short_url=False):
         except TypeError:
             p_image = p_grid.find("img", class_="x-product-gallery__image x-product-gallery__image_single")['src']
         p_image = "https:" + p_image
-        sizes = p_grid.find("script", attrs={"data-module": "statistics"}).decode().replace("\n", "").replace(" ", "")
-        pack = re.search('"sizes":\[[^]]*', sizes)[0].replace('"sizes":[', '')
-        p_sizes = utils.parse_sizes(pack)
+        try:
+            sizes = p_grid.find("script", attrs={"data-module": "statistics"}).decode().replace("\n", "").replace(" ", "")
+            pack = re.search('"sizes":\[[^]]*', sizes)[0].replace('"sizes":[', '')
+            p_sizes = utils.parse_sizes(pack)
+        except AttributeError:
+            p_sizes = list()
         is_available = p_grid.find("button", text="Добавить в корзину")
         if is_available is not None:
             p_price_text = p_grid.find_all("span", class_="product-prices__price")[-1].text
@@ -95,7 +98,8 @@ def parse_product(url, short_url=False):
                           price=p_price)
         # logger.debug(f"{product}")
         return product
-    except:
+    except Exception as ex:
+        print(ex.__repr__())
         return None
 
 
