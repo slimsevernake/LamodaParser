@@ -30,7 +30,7 @@ class Product:
                f"SKU: {self.sku} | " \
                f"Link: {self.link} | " \
                f"Image: {self.image_link} | " \
-               f"Sizes: {' '.join([size.get('value', -1) for size in self.sizes])}"
+               f"Sizes: {' '.join([size.get('size', -1) for size in self.sizes])}"
 
     @staticmethod
     def make_proper_sku(sku):
@@ -68,6 +68,6 @@ class Product:
                 result.add_field(name="Размеры: ", value="\0", inline=False)
                 for size in self.sizes:
                     result.add_field(inline=True,
-                                     name=f"Российский размер: {size['value']}",
-                                     value=f"Размер бренда: {size['brandSize']}")
+                                     name=f"Российский размер: {size['size']}",
+                                     value=f"Размер бренда: {size['brand_size']}")
         return result

@@ -10,7 +10,7 @@ def parse_sizes(sizes):
 
 def parse_size(size_data):
     result = json.loads(size_data)
-    if result["available"]:
+    if result["is_available"]:
         return result
     else:
         return None
@@ -51,3 +51,6 @@ def get_sku_from_url(url: str):
 
 def get_proper_sku(sku):
     return sku.upper()
+
+def decode_payload(payload):
+    return json.loads(payload)

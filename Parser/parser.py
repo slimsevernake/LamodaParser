@@ -4,6 +4,7 @@ import requests
 import re
 import Parser.utils as utils
 from Modules.Product import Product, ProductStatus
+import datetime
 
 SEARCH_URL = 'https://www.lamoda.ru/catalogsearch/result/?q={0}&page={1}'.format
 HOME_URL = 'https://www.lamoda.ru{0}'.format
@@ -75,10 +76,10 @@ def parse_product(url, short_url=False):
             p_image = p_grid.find("img", class_="x-product-gallery__image x-product-gallery__image_single")['src']
         p_image = "https:" + p_image
         try:
-            sizes = p_grid.find("script", attrs={"data-module": "statistics"}).decode().replace("\n", "").replace(" ", "")
-            pack = re.search('"sizes":\[[^]]*', sizes)[0].replace('"sizes":[', '')
-            p_sizes = utils.parse_sizes(pack)
-        except AttributeError:
+            pack = re.findall('"sizes":\[[^\]]*\]', page.text) #replace('"sizes":[', '')
+            real_pack = max(pack, key=lambda x: len(x)).replace('"sizes":[', '').replace(']', '')
+            p_sizes = utils.parse_sizes(real_pack)
+        except:
             p_sizes = list()
         buy_btn = p_grid.find("button")
         is_available = True if buy_btn.text.strip() == "Добавить в корзину" else False
