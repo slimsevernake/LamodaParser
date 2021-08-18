@@ -80,8 +80,9 @@ def parse_product(url, short_url=False):
             p_sizes = utils.parse_sizes(pack)
         except AttributeError:
             p_sizes = list()
-        is_available = p_grid.find("button", text="Добавить в корзину")
-        if is_available is not None:
+        buy_btn = p_grid.find("button")
+        is_available = True if buy_btn.text.strip() == "Добавить в корзину" else False
+        if is_available:
             p_price_text = p_grid.find_all("span", class_="product-prices__price")[-1].text
             p_price = float(''.join(filter(str.isalnum, p_price_text)))
             p_status = ProductStatus.IN_STOCK
