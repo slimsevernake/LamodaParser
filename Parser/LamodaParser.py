@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-from Parser.Parser import Parser
+from .Parser import Parser
 import re
 import Parser.utils as utils
 from Modules.Product import Product, ProductStatus
