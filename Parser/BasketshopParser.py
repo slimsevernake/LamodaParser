@@ -3,9 +3,8 @@ import requests
 from Modules.Product import Product, ProductStatus
 from Modules.BasketshopProduct import BasketshopProduct
 import Parser.utils as utils
-from .Parser import Parser
 
-class BasketshopParser(Parser):
+class BasketshopParser:
     SEARCH_URL = 'https://www.basketshop.ru/catalog/search/?&s[q]={0}&p={1}'.format
     HOME_URL = "https://www.basketshop.ru{0}".format
 

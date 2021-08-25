@@ -1,12 +1,11 @@
 from bs4 import BeautifulSoup
 import requests
-from .Parser import Parser
 import re
 import Parser.utils as utils
 from Modules.Product import Product, ProductStatus
 
 
-class LamodaParser(Parser):
+class LamodaParser:
     SEARCH_URL = 'https://www.lamoda.ru/catalogsearch/result/?q={0}&page={1}'.format
     HOME_URL = 'https://www.lamoda.ru{0}'.format
     PRODUCT_URL = 'https://www.lamoda.ru/p/{0}/'.format
