@@ -1,7 +1,6 @@
 from discord import Embed
-
 import app_logger
-import Parser.parser as parser
+from Parser.BasketshopParser import BasketshopParser as parser
 from logging import Logger
 from typing import Dict, List
 from Modules import Product
@@ -61,8 +60,6 @@ class Monitor:
                 return [parser.product_by_sku(stag)]
             elif stype == "EXTENDED":
                 return parser.smart_search(stag)
-            else:
-                return parser.search(tag)
         else:
             return []
 
