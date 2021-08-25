@@ -3,9 +3,9 @@ import requests
 from Modules.Product import Product, ProductStatus
 from Modules.BasketshopProduct import BasketshopProduct
 import Parser.utils as utils
+from Parser.Parser import Parser
 
-
-class BasketshopParser:
+class BasketshopParser(Parser):
     SEARCH_URL = 'https://www.basketshop.ru/catalog/search/?&s[q]={0}&p={1}'.format
     HOME_URL = "https://www.basketshop.ru{0}".format
 
@@ -70,15 +70,6 @@ class BasketshopParser:
                 p_price = float(''.join(filter(str.isdigit, price)))
             else:
                 p_price = 0.0
-            '''
-            print(p_name)
-            print(p_sizes)
-            print(p_sku)
-            print(p_price)
-            print(p_image)
-            print(p_status)
-            print(p_link)
-            '''
             product = BasketshopProduct(brand="",
                                         name=p_name,
                                         sku=Product.make_proper_sku(p_sku),

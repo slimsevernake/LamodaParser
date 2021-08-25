@@ -3,7 +3,7 @@ import app_logger
 from Parser.BasketshopParser import BasketshopParser as parser
 from logging import Logger
 from typing import Dict, List
-from Modules import Product
+from Modules import BasketshopProduct as Product
 from .ProductChangeEvent import ProductChangeHandler
 from .WebhookHandle import async_send_embed
 
@@ -28,27 +28,29 @@ class Monitor:
             for product in products_found:
                 cached_product = self.product_db.get(product.sku, None)
                 if cached_product:
-                    if self.check_differences(cached_product, product):
-                        self.product_db[product.sku] = product
+                    await self.process_differences(cached_product, product)
+                    self.product_db[product.sku] = product
                 else:
                     self.product_db[product.sku] = product
                     await async_send_embed(product.to_embed())
+        '''
         for embed in self.embed_queue:
             self.logger.info('sending embeds')
             await async_send_embed(embed)
-        self.embed_queue.clear()
+        '''
+        # self.embed_queue.clear()
 
-    def check_differences(self, old_product: 'Product', new_product: 'Product') -> 'bool':
+    async def process_differences(self, old_product: 'Product', new_product: 'Product') -> 'bool':
         check = False
         if old_product.status != new_product.status:
-            self.embed_queue.append(ProductChangeHandler.on_status_changed(new_product))
+            await async_send_embed(ProductChangeHandler.on_status_changed(new_product))
             return True
         if old_product.price != new_product.price:
             check = True
-            self.embed_queue.append(ProductChangeHandler.on_price_changed(new_product, old_product.price))
+            await async_send_embed(ProductChangeHandler.on_price_changed(new_product, old_product.price))
         if old_product.sizes != new_product.sizes:
             check = True
-            self.embed_queue.append(ProductChangeHandler.on_size_changed(new_product))
+            await async_send_embed(ProductChangeHandler.on_size_changed(new_product))
         return check
 
     @staticmethod

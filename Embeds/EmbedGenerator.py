@@ -1,9 +1,8 @@
 from discord import Color
-from Modules.Product import Product
+from Modules.BasketshopProduct import BasketshopProduct as Product
 
 
 class EmbedGenerator:
-
     @staticmethod
     def prepare_embed(product):
         product_embed = product.to_embed()
