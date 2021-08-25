@@ -27,7 +27,7 @@ class BasketshopParser(Parser):
                                      price=None)
 
     @staticmethod
-    def smart_search(pattern, pages=1):
+    def smart_search(pattern, pages=2):
         result = []
         for page_num in range(1, pages + 1):
             tag = utils.generate_name_from_pattern(pattern)
