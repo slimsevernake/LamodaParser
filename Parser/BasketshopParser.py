@@ -92,4 +92,3 @@ class BasketshopParser:
             print(ex.__repr__())
             return None
 
-p = BasketshopParser.smart_search("+jordan +1 +mid")
