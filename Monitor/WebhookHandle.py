@@ -1,6 +1,5 @@
 import asyncio
 import logging
-
 import aiohttp
 from discord import Embed, Webhook, AsyncWebhookAdapter
 

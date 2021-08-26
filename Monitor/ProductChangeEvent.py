@@ -1,4 +1,3 @@
-from Modules.Product import Product
 from Embeds.EmbedGenerator import EmbedGenerator
 
 

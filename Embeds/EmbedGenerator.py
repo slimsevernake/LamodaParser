@@ -1,5 +1,5 @@
 from discord import Color
-from Modules.BasketshopProduct import BasketshopProduct as Product
+from Models.Products import BasketshopProduct as Product
 
 
 class EmbedGenerator:

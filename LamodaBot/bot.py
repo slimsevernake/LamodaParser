@@ -3,8 +3,8 @@ import LamodaBot.bot_settings as settings
 from discord.ext import tasks
 from discord.ext.commands import Bot, Context
 import app_logger
-from Monitor import Monitor
-from Manifests import manifest
+from Monitor.monitor import Monitor
+from Manifests.bshop_manifest import products_to_monitor as manifest
 
 
 logger = app_logger.get_logger("common", logging.DEBUG)

@@ -1,11 +1,11 @@
 from discord import Embed
 import app_logger
-from Parser.BasketshopParser import BasketshopParser as parser
+from Parser.Parsers import BasketshopParser as Parser
 from logging import Logger
 from typing import Dict, List
-from Modules import BasketshopProduct as Product
-from .ProductChangeEvent import ProductChangeHandler
-from .WebhookHandle import async_send_embed
+from Models.Products import BasketshopProduct as Product
+from Monitor.ProductChangeEvent import ProductChangeHandler
+from Monitor.WebhookHandle import async_send_embed
 
 
 class Monitor:
@@ -19,7 +19,6 @@ class Monitor:
         self.tags = []
         self.manifest = manifest
         self.logger = logger if logger else app_logger.get_logger("monitor")
-        self.embed_queue = []
 
     async def run(self):
         for product_tag in self.manifest:
@@ -28,19 +27,14 @@ class Monitor:
             for product in products_found:
                 cached_product = self.product_db.get(product.sku, None)
                 if cached_product:
-                    await self.process_differences(cached_product, product)
+                    await Monitor.process_differences(cached_product, product)
                     self.product_db[product.sku] = product
                 else:
                     self.product_db[product.sku] = product
                     await async_send_embed(product.to_embed())
-        '''
-        for embed in self.embed_queue:
-            self.logger.info('sending embeds')
-            await async_send_embed(embed)
-        '''
-        # self.embed_queue.clear()
 
-    async def process_differences(self, old_product: 'Product', new_product: 'Product') -> 'bool':
+    @staticmethod
+    async def process_differences(old_product: 'Product', new_product: 'Product') -> 'bool':
         check = False
         if old_product.status != new_product.status:
             await async_send_embed(ProductChangeHandler.on_status_changed(new_product))
@@ -59,9 +53,9 @@ class Monitor:
 
         if stype:
             if stype == "SKU":
-                return [parser.product_by_sku(stag)]
+                return [Parser.product_by_sku(stag)]
             elif stype == "EXTENDED":
-                return parser.smart_search(stag)
+                return Parser.smart_search(stag)
         else:
             return []
 

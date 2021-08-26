@@ -1,1 +1,0 @@
-from .Product import Product # noqa
