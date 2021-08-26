@@ -45,7 +45,7 @@ class LamodaParser(BaseParser):
         if product is None:
             return LamodaProduct(brand=None,
                                  name=None,
-                                 sku=Product.make_proper_sku(sku),
+                                 sku=LamodaProduct.make_proper_sku(sku),
                                  image_link=None,
                                  status=ProductStatus.OUT_OF_STOCK,
                                  sizes=list(),
@@ -111,7 +111,7 @@ class LamodaParser(BaseParser):
                 p_status = ProductStatus.OUT_OF_STOCK
             product = LamodaProduct(brand=p_brand,
                                     name=p_name,
-                                    sku=Product.make_proper_sku(p_sku),
+                                    sku=LamodaProduct.make_proper_sku(p_sku),
                                     image_link=p_image,
                                     status=p_status,
                                     sizes=p_sizes,
@@ -137,7 +137,7 @@ class BasketshopParser(BaseParser):
         except:
             return BasketshopProduct(brand=None,
                                      name=None,
-                                     sku=Product.make_proper_sku(sku),
+                                     sku=BasketshopProduct.make_proper_sku(sku),
                                      image_link=None,
                                      status=ProductStatus.OUT_OF_STOCK,
                                      sizes=list(),
@@ -171,32 +171,28 @@ class BasketshopParser(BaseParser):
     @staticmethod
     def parse_product(url):
         page = requests.get(url)
-        try:
-            soup = BeautifulSoup(page.text, "html.parser")
-            p_name = soup.find("h1", class_="product__title").text
-            p_sku = BasketshopProduct.make_proper_sku(BasketshopParser._get_sku_from_name(p_name))
-            sizes = dict()
-            for p_size_list in soup.find_all("ul", class_="product__sizes-list"):
-                sizes[p_size_list["data-size-chart"]] = [x["data-size"] for x in
-                                                         p_size_list.find_all("button", class_="product__sizes-button")]
-            p_sizes = list(map('/'.join, zip(sizes['UK'], sizes['RUS'])))
-            p_status = ProductStatus.IN_STOCK if len(p_sizes) != 0 else ProductStatus.OUT_OF_STOCK
-            p_image = soup.find("div", class_="product__gallery-slider-slide-cell js-zoom").find("img")["src"]
-            p_link = url
-            if p_status == ProductStatus.IN_STOCK:
-                price = soup.find("div", class_="product__price-value").text
-                p_price = float(''.join(filter(str.isdigit, price)))
-            else:
-                p_price = 0.0
-            product = BasketshopProduct(brand="",
-                                        name=p_name,
-                                        sku=Product.make_proper_sku(p_sku),
-                                        image_link=p_image,
-                                        status=p_status,
-                                        sizes=p_sizes,
-                                        link=p_link,
-                                        price=p_price)
-            return product
-        except Exception as ex:
-            print(ex.__repr__())
-            return None
+        soup = BeautifulSoup(page.text, "html.parser")
+        p_name = soup.find("h1", class_="product__title").text
+        p_sku = BasketshopProduct.make_proper_sku(BasketshopParser._get_sku_from_name(p_name))
+        sizes = dict()
+        for p_size_list in soup.find_all("ul", class_="product__sizes-list"):
+            sizes[p_size_list["data-size-chart"]] = [x["data-size"] for x in
+                                                     p_size_list.find_all("button", class_="product__sizes-button")]
+        p_sizes = list(map('/'.join, zip(sizes['UK'], sizes['RUS'])))
+        p_status = ProductStatus.IN_STOCK if len(p_sizes) != 0 else ProductStatus.OUT_OF_STOCK
+        p_image = soup.find("div", class_="product__gallery-slider-slide-cell js-zoom").find("img")["src"]
+        p_link = url
+        if p_status == ProductStatus.IN_STOCK:
+            price = soup.find("div", class_="product__price-value").text
+            p_price = float(''.join(filter(str.isdigit, price)))
+        else:
+            p_price = 0.0
+        product = BasketshopProduct(brand="",
+                                    name=p_name,
+                                    sku=BasketshopProduct.make_proper_sku(p_sku),
+                                    image_link=p_image,
+                                    status=p_status,
+                                    sizes=p_sizes,
+                                    link=p_link,
+                                    price=p_price)
+        return product
