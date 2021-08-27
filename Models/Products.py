@@ -82,6 +82,17 @@ class LamodaProduct(BaseProduct):
                                      value=f"Размер бренда: {size['brand_size']}")
         return result
 
+    @staticmethod
+    def get_copy(product: 'Product'):
+        return LamodaProduct(brand=product.brand,
+                             name=product.name,
+                             sku=product.sku,
+                             image_link=product.image_link,
+                             status=product.status,
+                             sizes=copy.deepcopy(product.sizes),
+                             link=product.link,
+                             price=product.price)
+
 
 @dataclass
 class BasketshopProduct(BaseProduct):
@@ -115,3 +126,14 @@ class BasketshopProduct(BaseProduct):
                                      name=f"UK: {size.split('/')[0]}",
                                      value=f"RUS: {size.split('/')[1]}")
         return result
+
+    @staticmethod
+    def get_copy(product: 'Product'):
+        return BasketshopProduct(brand=product.brand,
+                                 name=product.name,
+                                 sku=product.sku,
+                                 image_link=product.image_link,
+                                 status=product.status,
+                                 sizes=copy.deepcopy(product.sizes),
+                                 link=product.link,
+                                 price=product.price)

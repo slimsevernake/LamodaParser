@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import Parser.utils as utils
+import copy
 from Models.Products import ProductStatus, BasketshopProduct, LamodaProduct
 
 
@@ -176,7 +177,7 @@ class BasketshopParser(BaseParser):
         p_sku = BasketshopProduct.make_proper_sku(BasketshopParser._get_sku_from_name(p_name))
         sizes = dict()
         for p_size_list in soup.find_all("ul", class_="product__sizes-list"):
-            sizes[p_size_list["data-size-chart"]] = [x["data-size"] for x in
+            sizes[p_size_list["data-size-chart"]] = [x.text for x in
                                                      p_size_list.find_all("button", class_="product__sizes-button")]
         p_sizes = list(map('/'.join, zip(sizes['UK'], sizes['RUS'])))
         p_status = ProductStatus.IN_STOCK if len(p_sizes) != 0 else ProductStatus.OUT_OF_STOCK
